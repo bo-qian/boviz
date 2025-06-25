@@ -2,35 +2,51 @@
  * @Author: bo-qian bqian@shu.edu.cn
  * @Date: 2025-06-25 15:25:33
  * @LastEditors: bo-qian bqian@shu.edu.cn
- * @LastEditTime: 2025-06-25 19:13:07
+ * @LastEditTime: 2025-06-25 19:39:38
  * @FilePath: /BoPlotKit/README.md
- * @Description: 
+ * @Description: English introduction for BoPlotKit
  * Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 -->
+
+
 # BoPlotKit
 
-BoPlotKit is a modular and extensible scientific plotting toolkit designed for researchers and engineers. It streamlines common data visualization tasks and helps you create high-quality, publication-ready figures with ease.
+**BoPlotKit** is a modular and extensible scientific plotting toolkit designed for researchers and engineers. It streamlines common data visualization tasks and helps create high-quality, publication-ready figures with ease.
 
-## Features
+---
 
-- **Modular Design**: Each functionality is independent and easy to extend or maintain.
-- **Unified Style**: Built-in color schemes and style settings for consistent, professional plots.
-- **Essential Plotting Functions**: Includes curve plotting, schematic particle diagrams, and more for typical scientific needs.
-- **Automatic File Naming & Saving**: Generate plot filenames automatically and customize save directories.
-- **Easy Integration**: Import as a standalone package or integrate seamlessly into existing projects.
+## ✨ Features
 
-## Quick Start
+- **Modular Design**: Each functionality is self-contained and easy to maintain or extend.
+- **Unified Visual Style**: Predefined colors, fonts, and line styles for visually consistent plots.
+- **Essential Plotting Tools**: Supports curve plotting, schematic particle diagrams, residual visualization, and more.
+- **Automatic File Naming**: Plot filenames are auto-generated using the format `boplot_<timestamp>_<title>.png`.
+- **Easy Integration**: Usable as a standalone package or within existing Python-based projects.
+
+---
+
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
+# Clone the repository
 git clone https://github.com/bo-qian/BoPlotKit.git
 cd BoPlotKit
-# (Optional) Use a virtual environment
+
+# (Optional) Create and activate a virtual environment
+# python -m venv venv && source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install BoPlotKit as a local package
 pip install .
 ```
 
-### Basic Usage
+---
+
+### Example Usage
 
 ```python
 from boplot import (
@@ -44,49 +60,97 @@ from boplot import (
     DEFAULT_FIGSIZE
 )
 
-# Set default style
+# Apply consistent visual style
 set_default_style()
 
-# Plot curves
-plot_curves(x_data, y_data, label="Example Curve")
+# Plot curves from CSV file
+plot_curves(
+    path=["data/curve_data.csv"],
+    x=[0], y=[1],
+    label=["Simulation A"],
+    xy_label=("Time (s)", "Stress (MPa)"),
+    use_marker=[True],
+    use_scatter=[False],
+    title_figure="StressTimePlot"
+)
 
-# Plot initial particle schematic
-demo_positions = [(0,0), (1,1)]  # Example data
-plot_initial_particle_schematic(demo_positions)
+# Plot schematic of initial particles
+positions = [(90, 90), (150, 90)]
+radii = [30, 30]
+domain = [240, 180]
+plot_initial_particle_schematic(positions, radii, domain)
 
-# Generate filename and save
+# Save figure with auto-generated filename
 filename = generate_plot_filename("my_figure")
 plt.savefig(filename, dpi=DEFAULT_DPI)
 ```
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```
-boplot/
-    __init__.py
-    config.py                # Global config and defaults
-    curves.py                # Curve plotting functions
-    schematic_particles.py   # Particle schematic plotting
-    style.py                 # Style and color settings
-    utils.py                 # Utility functions (e.g., filename generation)
-figures/                     # Example figures or output directory
-tests/                       # Unit tests
+BoPlotKit/
+├── boplot/
+│   ├── __init__.py
+│   ├── config.py                # Global config and constants
+│   ├── curves.py                # Curve plotting functions
+│   ├── schematic_particles.py   # Particle schematic drawing
+│   ├── style.py                 # Style definitions
+│   └── utils.py                 # Utilities like filename generation
+├── tests/                       # Unit tests and usage examples
+├── figures/                     # Output figures (optional)
+├── requirements.txt             # Package dependencies
+└── README.md
 ```
 
-## Testing
+---
+
+## 📦 Requirements
+
+Dependencies are specified in `requirements.txt`. Main packages include:
+
+```
+matplotlib
+numpy
+pandas
+pytest
+```
+
+Install all requirements with:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🧪 Testing
+
+Run unit tests using:
 
 ```bash
 pytest tests/
 ```
 
-## Contributing
+This verifies the correctness of core functionalities such as curve plotting and schematic generation.
 
-Contributions are welcome! Please open issues or pull requests to improve features or fix bugs.
+---
 
-## License
+## 🤝 Contributing
+
+Contributions are welcome! You may:
+
+- Open an issue to report bugs or request features
+- Submit a pull request with enhancements or new plotting modules
+- Share your use cases and help improve usability
+
+---
+
+## 📄 License
 
 MIT License © 2025 Bo Qian
 
 ---
 
-For detailed documentation and examples, see module docstrings or the `tests` directory.
+For full documentation and detailed examples, see inline docstrings or browse the `tests/` directory.
