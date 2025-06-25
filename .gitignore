@@ -192,3 +192,32 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# BoPlotKit project specific ignores
+figures/
+!figures/.gitkeep  # Keep the directory but ignore its contents
+
+# Data files (if not needed in version control)
+tests/data/
+!tests/data/.gitkeep
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# MacOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# End of file
