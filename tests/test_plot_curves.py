@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-26 15:45:34
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-26 16:41:16
+LastEditTime: 2025-06-26 18:18:30
 FilePath: /BoPlotKit/tests/test_plot_curves.py
 Description: This module contains unit tests for the BoPlotKit plotting functions, ensuring they work correctly with sample data.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -11,7 +11,7 @@ import os
 import pytest
 import pandas as pd
 import matplotlib.pyplot as plt
-from boplot import plot_curves, plot_initial_particle_schematic, generate_plot_filename
+from BoPlotKit import plot_curves, plot_initial_particle_schematic, generate_plot_filename
 
 # 测试数据路径（假设你提供了样例 csv）
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")

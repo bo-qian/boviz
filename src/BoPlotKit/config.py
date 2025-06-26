@@ -2,11 +2,12 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:28:18
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-25 19:10:15
-FilePath: /BoPlotKit/boplot/config.py
+LastEditTime: 2025-06-26 18:28:43
+FilePath: /BoPlotKit/src/BoPlotKit/config.py
 Description: This module defines global configuration settings for BoPlotKit, including default colors, save directory, DPI, and figure size.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
+
 
 
 import os

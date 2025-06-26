@@ -2,15 +2,15 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-26 17:02:11
-FilePath: /BoPlotKit/example/test_example_plot.py
+LastEditTime: 2025-06-26 18:19:54
+FilePath: /BoPlotKit/example/example_plot.py
 Description: Test script for BoPlotKit, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
 
 
 import os
-from boplot import *
+from BoPlotKit import *
 
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "data/test_plotkit_multifeature_data.csv")

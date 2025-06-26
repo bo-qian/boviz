@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="BoPlotKit",
-    version="0.1.3",
+    version="0.1.4",
     author="Bo Qian",
     author_email="bqian@shu.edu.cn",
     description="Bo Qian's advanced scientific plotting toolkit",

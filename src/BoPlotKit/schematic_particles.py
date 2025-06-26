@@ -2,18 +2,21 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-26 16:39:50
-FilePath: /BoPlotKit/boplot/schematic_particles.py
-Description: This module provides functions to plot schematic diagrams of initial particle distributions.
-Copyright (c) 2025 by Bo Qian, All Rights Reserved.
+LastEditTime: 2025-06-26 18:29:28
+FilePath: /BoPlotKit/src/BoPlotKit/schematic_particles.py
+Description: This module provides a function to plot the initial distribution of particles in a schematic format, including their positions and radii.
+Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
+
+
+
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from boplot.config import DEFAULT_SAVE_DIR, DEFAULT_DPI
-from boplot.style import set_default_style
-from boplot.utils import generate_plot_filename
+from BoPlotKit.config import DEFAULT_SAVE_DIR, DEFAULT_DPI
+from BoPlotKit.style import set_default_style
+from BoPlotKit.utils import generate_plot_filename
 
 def plot_initial_particle_schematic(
     coordinates: list,

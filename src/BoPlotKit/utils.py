@@ -2,11 +2,12 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-25 19:09:33
-FilePath: /BoPlotKit/boplot/utils.py
-Description: This module provides utility functions for BoPlotKit, including generating plot filenames.
+LastEditTime: 2025-06-26 18:29:45
+FilePath: /BoPlotKit/src/BoPlotKit/utils.py
+Description: This module provides utility functions for BoPlotKit, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
+
 
 
 from datetime import datetime
