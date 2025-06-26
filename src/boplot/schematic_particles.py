@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-25 19:07:33
+LastEditTime: 2025-06-26 16:39:50
 FilePath: /BoPlotKit/boplot/schematic_particles.py
 Description: This module provides functions to plot schematic diagrams of initial particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved.
@@ -10,6 +10,9 @@ Copyright (c) 2025 by Bo Qian, All Rights Reserved.
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+
+from boplot.config import DEFAULT_SAVE_DIR, DEFAULT_DPI
+from boplot.style import set_default_style
 from boplot.utils import generate_plot_filename
 
 def plot_initial_particle_schematic(
@@ -30,11 +33,12 @@ def plot_initial_particle_schematic(
         show (bool): 是否显示图像，默认不显示。
         save (bool): 是否保存图像，默认不保存。
     """
+    set_default_style()  # 设置默认样式
     # 创建保存目录
-    save_dir = os.path.join("figures", "initial_schematic")
+    save_dir = os.path.join(DEFAULT_SAVE_DIR, "initial_schematic")
     os.makedirs(save_dir, exist_ok=True)
 
-    filename = generate_plot_filename(title=title) + ".png"
+    filename = generate_plot_filename(title=title)
     save_path = os.path.join(save_dir, filename)
     
     fig, ax = plt.subplots(figsize=(12, 9), dpi=100)
@@ -71,15 +75,16 @@ def plot_initial_particle_schematic(
 
     ax.grid(True, linestyle='--', linewidth=3, zorder=1)
     plt.tick_params(axis='both', direction='in', width=3, which='both', pad=10)
-
     plt.xlabel('X-axis', fontweight='bold')
     plt.ylabel('Y-axis', fontweight='bold')
     plt.title(title, pad=20, fontweight='bold')
+
+    plt.tight_layout()
     if save:
-        plt.savefig(save_path, dpi=100, bbox_inches='tight')
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path, dpi=DEFAULT_DPI, bbox_inches='tight')
         print(f"[Saved] {save_path}")
     if show:
         plt.show()
     plt.close()
-
     return save_path

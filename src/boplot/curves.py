@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:38:39
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-25 19:09:10
+LastEditTime: 2025-06-26 16:39:41
 FilePath: /BoPlotKit/boplot/curves.py
 Description: This module provides functions to plot curves with various styles and options.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -177,14 +177,20 @@ def plot_curves(
 
     label_suffix = f"({information})" if information else ""
 
-    if xy_label and xy_label[0]:
+    num_curves = len(path)
+    if num_curves > 1:
+        if not xy_label or not xy_label[0] or not xy_label[1]:
+            raise ValueError("When plotting multiple curves, please specify 'xy_label' explicitly.")
         ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight='bold')
         ax_main.set_xlabel(xy_label[0], fontweight='bold')
         ax_main.set_ylabel(xy_label[1], fontweight='bold')
     else:
-        ax_main.set_title(f'Comparison of {title[y[1]]}', pad=20, fontweight='bold')
-        ax_main.set_xlabel(f'{title[x[1]]}', fontweight='bold')
-        ax_main.set_ylabel(f'{title[y[1]]}', fontweight='bold')
+        # 单条曲线时，从 DataFrame 自动读取列标题
+        x_label = df.columns[x[0]] if hasattr(df, "columns") else "X"
+        y_label = df.columns[y[0]] if hasattr(df, "columns") else "Y"
+        ax_main.set_title(title_figure or f'Curve of {y_label}', pad=20, fontweight='bold')
+        ax_main.set_xlabel(x_label, fontweight='bold')
+        ax_main.set_ylabel(y_label, fontweight='bold')
 
     if xlim:
         ax_main.set_xlim(*xlim)
@@ -233,12 +239,14 @@ def plot_curves(
         ax_res.set_xlabel(xy_label[0] if xy_label and xy_label[0] else title[x[1]], fontweight='bold')
         ax_res.legend(fontsize=20)
 
-    plt.tight_layout()
+    plt.tight_layout() 
     filename = generate_plot_filename(title=title_figure, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
     if save:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=DEFAULT_DPI, bbox_inches='tight')
         print(f"[Saved] {save_path}")
     if show:
         plt.show()
     plt.close()
+    return save_path
