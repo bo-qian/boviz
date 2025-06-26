@@ -69,7 +69,7 @@ plot_curves(
 To run all tests:
 
 ```bash
-pytest
+python -m pytest
 ```
 
 All core plotting functions are covered by unit tests under the `tests/` directory, including:
