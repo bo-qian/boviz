@@ -48,29 +48,39 @@ pip install .
 ```python
 from boplot import *
 
-# Plot initial schematic of particles
+# Plot initial particle distribution schematic
 plot_initial_particle_schematic(
-    coordinates=[[90, 90], [150, 90]],
-    radii=[30, 30],
-    domain=[240, 180],
-    title="Initial Particle Distribution",
-    show=True,
-    save=True
+  coordinates=[[90, 90], [150, 90]],
+  radii=[30, 30],
+  domain=[240, 180],
+  title="Initial Particle Distribution",
+  show=True,
+  save=True
 )
 
-# Plot multiple curves with residual analysis
+# Multi-curve comparison: Shrinkage ratio under different experimental and simulation conditions
 plot_curves(
-    path=["example/data/test_plotkit_multifeature_data.csv"] * 2,
-    label=["Sim 800K", "Sim 900K"],
-    x=[0, 0],
-    y=[3, 4],
-    xy_label=["Time (s)", "Shrinkage Ratio"],
-    title_figure="Residual Analysis",
-    show_residual=True,
-    save=True,
-    show=True
+  path=["example/data/test_plotkit_multifeature_data.csv"] * 4,
+  label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
+  x=[0, 0, 0, 0],
+  y=[1, 2, 3, 4],
+  xy_label=["Time (s)", "Shrinkage Ratio"],
+  title_figure="Shrinkage Comparison at Two Temperatures",
+  use_marker=[True, True, False, False],
+  legend_ncol=2,
+  save=True,
+  show=False,
+  information="shrinkage_comparison"
 )
 ```
+
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/bo-qian/BoPlotKit/main/example/figures/initial_schematic/boplot_2506271039_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" width="400"/>
+&nbsp;
+<img src="https://raw.githubusercontent.com/bo-qian/BoPlotKit/main/example/figures/plot_curves/boplot_2506271039_ShrinkageComparisonatTwoTemperatures(shrinkage_comparison).png" alt="Shrinkage Ratio Comparison at Different Temperatures" width="400"/>
+
+</div>
 
 ---
 

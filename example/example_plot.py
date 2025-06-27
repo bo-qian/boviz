@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-26 18:19:54
+LastEditTime: 2025-06-27 10:37:54
 FilePath: /BoPlotKit/example/example_plot.py
 Description: Test script for BoPlotKit, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
