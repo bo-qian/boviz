@@ -187,7 +187,11 @@ tests/data/
 Thumbs.db
 Desktop.ini
 
-# Figures & temporary data
+# Ignore all PNG files by default
 *.png
+
+# Then explicitly allow just these two
+!figures/initial_schematic/boplot_InitialParticleDistribution.png
+!figures/plot_curves/boplot_ShrinkageComparisonatTwoTemperatures.png
 
 # End of file
