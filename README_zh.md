@@ -70,11 +70,11 @@ plot_curves(
 )
 ```
 
-<div align="center">
+<div align="center" style="display: flex; gap: 16px;">
 
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" width="400"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="250"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/plot_curves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" width="400"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/plot_curves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="250"/>
 
 </div>
 
