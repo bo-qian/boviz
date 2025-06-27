@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="README.md">English</a> | <a href="README_zh.md">中文</a>
+</p>
+
 # BoPlotKit
 
 **BoPlotKit** is a modular, extensible scientific plotting toolkit developed for researchers, scientists, and engineers. It provides clean and consistent APIs to generate high-quality, publication-ready figures such as curve plots, particle schematics, and residual analysis.
@@ -20,6 +24,12 @@
 ## 📦 Installation
 
 ```bash
+pip install BoPlotKit
+```
+
+Or, to install the development or latest version from source:
+
+```bash
 # Clone the repository
 git clone https://github.com/bo-qian/BoPlotKit.git
 cd BoPlotKit
@@ -27,7 +37,7 @@ cd BoPlotKit
 # (Optional) Create a virtual environment
 python -m venv venv && source venv/bin/activate
 
-# Install the package
+# Install the package from source
 pip install .
 ```
 
@@ -66,11 +76,13 @@ plot_curves(
 
 ## 🧪 Testing
 
-To run all tests:
+To run all tests, use:
 
 ```bash
 python -m pytest
 ```
+
+> **Note:** On Windows, if you installed BoPlotKit in a Conda environment, make sure to run this command from the Conda terminal (Anaconda Prompt or your activated Conda shell), not from the default system terminal.
 
 All core plotting functions are covered by unit tests under the `tests/` directory, including:
 
@@ -141,4 +153,4 @@ GNU General Public License v3 (GPLv3) License © 2025 Bo Qian
 
 ---
 
-For advanced examples and API documentation, please refer to the `tests/` and `example/` directories, or explore the docstrings inside the `src/boplot/` module.
+For advanced examples and API documentation, please refer to the `tests/` and `example/` directories, or explore the docstrings inside the `src/BoPlotKit/` module.
