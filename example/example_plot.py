@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-27 10:37:54
+LastEditTime: 2025-06-28 01:28:01
 FilePath: /BoPlotKit/example/example_plot.py
 Description: Test script for BoPlotKit, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -11,6 +11,7 @@ Copyright (c) 2025 by Bo Qian, All Rights Reserved.
 
 import os
 from BoPlotKit import *
+import numpy as np
 
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "data/test_plotkit_multifeature_data.csv")
@@ -27,7 +28,7 @@ plot_initial_particle_schematic(
 )
 
 # 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
-plot_curves(
+plot_curves_csv(
     path=[csv_path, csv_path, csv_path, csv_path],
     label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
     x=[0, 0, 0, 0],
@@ -42,7 +43,7 @@ plot_curves(
 )
 
 # 3. 单曲线绘图：绘制单条模拟曲线
-plot_curves(
+plot_curves_csv(
     path=[csv_path],
     label=["Sim 800K"],
     x=[0],
@@ -54,7 +55,7 @@ plot_curves(
 )
 
 # 4. 样式演示：展示不同颜色、marker、线型等样式
-plot_curves(
+plot_curves_csv(
     path=[csv_path, csv_path],
     label=["Exp 800K", "Exp 900K"],
     x=[0, 0],
@@ -68,7 +69,7 @@ plot_curves(
 )
 
 # 5. 残差分析图：展示两条曲线的残差
-plot_curves(
+plot_curves_csv(
     path=[csv_path, csv_path],
     label=["Sim 800K", "Sim 900K"],
     x=[0, 0],
@@ -79,4 +80,17 @@ plot_curves(
     save=True,
     show_residual=True,
     information="residual_demo"
+)
+
+# 6. 直接传入数据进行绘图
+x = np.linspace(0, 6*np.pi, 200)
+y = np.sin(x)
+plot_curves(
+    data=[(x, y)],
+    label=["$\sin(x)$"],
+    xy_label=("$x$", "$\sin(x)$"),
+    use_marker=[True],
+    title_figure="Sine Wave Example",
+    save=True,
+    show=True
 )

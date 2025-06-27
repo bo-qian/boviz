@@ -74,7 +74,7 @@ plot_curves(
 
 <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="300"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/plot_curves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="300"/>
 
 </div>
 

@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-26 18:29:28
+LastEditTime: 2025-06-27 17:05:56
 FilePath: /BoPlotKit/src/BoPlotKit/schematic_particles.py
 Description: This module provides a function to plot the initial distribution of particles in a schematic format, including their positions and radii.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -14,8 +14,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from BoPlotKit.config import DEFAULT_SAVE_DIR, DEFAULT_DPI
-from BoPlotKit.style import set_default_style
+from BoPlotKit.config import set_default_dpi_figsize_savedir
+from BoPlotKit.style import set_default_style, set_ax_style
 from BoPlotKit.utils import generate_plot_filename
 
 def plot_initial_particle_schematic(
@@ -38,17 +38,13 @@ def plot_initial_particle_schematic(
     """
     set_default_style()  # 设置默认样式
     # 创建保存目录
-    save_dir = os.path.join(DEFAULT_SAVE_DIR, "initial_schematic")
-    os.makedirs(save_dir, exist_ok=True)
+    save_dir = os.path.join(set_default_dpi_figsize_savedir()[2], "initial_schematic")
 
     filename = generate_plot_filename(title=title)
     save_path = os.path.join(save_dir, filename)
     
-    fig, ax = plt.subplots(figsize=(12, 9), dpi=100)
-    ax.spines['top'].set_linewidth(3)
-    ax.spines['bottom'].set_linewidth(3)
-    ax.spines['left'].set_linewidth(3)
-    ax.spines['right'].set_linewidth(3)
+    fig, ax = plt.subplots(figsize=set_default_dpi_figsize_savedir()[1], dpi=set_default_dpi_figsize_savedir()[0])
+    set_ax_style(ax)
 
     ax.set_xlim(0, domain[0])
     ax.set_ylim(0, domain[1])
@@ -85,7 +81,7 @@ def plot_initial_particle_schematic(
     plt.tight_layout()
     if save:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, dpi=DEFAULT_DPI, bbox_inches='tight')
+        plt.savefig(save_path, dpi=set_default_dpi_figsize_savedir()[0], bbox_inches='tight')
         print(f"[Saved] {save_path}")
     if show:
         plt.show()

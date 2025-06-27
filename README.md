@@ -78,7 +78,7 @@ plot_curves(
 
 <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="300"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/plot_curves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="300"/>
 
 </div>
 
