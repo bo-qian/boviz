@@ -97,21 +97,28 @@ plot_heatmap_particle(
 )
 ```
 
-<div align="center" style="display: flex; gap: 16px;">
-
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="280"/>
-&nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="280"/>
-
-</div>
-
-<div align="center" style="display: flex; gap: 16px;">
-
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="Sine Wave Example" height="280"/>
-&nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="Particle Heatmap Example" height="280"/>
-
-</div>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
+      <sub><b>Initial Particle Distribution</b></sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
+      <sub><b>Shrinkage Comparison</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="正弦波示例" height="240"/><br/>
+      <sub><b>Sine Wave Example</b></sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="粒子热图示例" height="240"/><br/>
+      <sub><b>Particle Heatmap Example</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
