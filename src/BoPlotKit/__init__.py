@@ -20,4 +20,4 @@ from .style import set_default_style, set_ax_style, apply_axis_scientific_format
 from .utils import generate_plot_filename, load_data_csv, save_figure, generate_particle_layout, build_tanh_phase_field
 from .curves import plot_curves_csv, plot_curves
 from .heatmap import plot_heatmap_particle
-from .schematic_particles import plot_initial_particle_schematic
+from .schematic import plot_initial_particle_schematic
