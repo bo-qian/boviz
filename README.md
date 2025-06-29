@@ -99,17 +99,17 @@ plot_heatmap_particle(
 
 <div align="center" style="display: flex; gap: 16px;">
 
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="280"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="280"/>
 
 </div>
 
 <div align="center" style="display: flex; gap: 16px;">
 
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="Sine Wave Example" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="Sine Wave Example" height="280"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="Particle Heatmap Example" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="Particle Heatmap Example" height="280"/>
 
 </div>
 
