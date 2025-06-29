@@ -1,19 +1,24 @@
 # BoPlotKit 中文文档
 
-**BoPlotKit** 是为科研人员、科学家和工程师开发的模块化、可扩展的科学绘图工具包。它提供简洁一致的 API，帮助用户高效生成高质量、可用于发表的曲线图、粒子示意图和残差分析等科学可视化图像。
+**BoPlotKit** 是为研究人员、科学家和工程师设计的模块化、可扩展科学绘图工具包。它提供简洁一致的 API，可生成高质量、可用于发表的图形，包括曲线图、粒子示意图、热力图和残差分析。BoPlotKit 依赖极少，注重易用性，能够高效地帮助用户可视化复杂数据，无论是快速探索还是正式展示都得心应手。
 
 ---
 
 ## ✨ 主要特性
 
-- **模块化设计**：曲线、示意图、样式、工具和配置等功能分区明确，便于维护和扩展。
-- **统一美学风格**：内置配色、标记和线型，保证图像风格统一、专业。
-- **灵活的曲线绘制**：支持多曲线、残差对比、对数/科学坐标、截断、坐标轴自定义、多格式图例等。
-- **示意图绘制**：轻松绘制粒子分布、区域示意等科学图形。
-- **智能文件命名**：自动生成如 `boplot_<timestamp>_<title>.png` 格式的图片文件名。
+- **模块化设计**：曲线、示意图、样式、工具与配置等模块结构清晰。
+- **统一美学风格**：预设配色、标记和线型，保证视觉风格一致。
+- **灵活曲线绘制**：支持多曲线、残差对比、对数/科学坐标、截断、坐标轴自定义和多格式图例。
+- **示意图绘制**：便捷生成粒子分布和区域示意图。
+- **热力图可视化**：基于粒子的热力图，适用于空间数据分析。
+- **批量绘图**：一次调用即可绘制多组数据或多张图，提升效率。
+- **智能文件命名**：自动生成如 `BoPlotKit_<timestamp>_<title>.png` 格式的文件名。
 - **极简依赖**：仅依赖 Matplotlib、NumPy 和 Pandas。
-- **易于集成**：既可独立使用，也可集成到大型 Python 工作流中。
-- **测试驱动开发**：内置丰富测试用例，保证功能稳定可靠。
+- **易于集成**：既可独立使用，也可嵌入更大 Python 工作流。
+- **可定制样式**：支持自定义绘图风格、配色方案和图例布局。
+- **发表级输出**：高分辨率图片，适用于学术论文和演示。
+- **测试驱动开发**：内置丰富测试用例，保障稳定性与正确性。
+- **丰富示例**：附带示例脚本和数据，便于快速上手和进阶使用。
 
 ---
 
@@ -143,20 +148,24 @@ BoPlotKit/
 ├── src/
 │   └── boplot/
 │       ├── __init__.py
-│       ├── config.py            # 全局参数与配色
-│       ├── curves.py            # 曲线绘图核心
-│       ├── schematic.py         # 粒子示意图
-│       ├── style.py             # 默认绘图样式
-│       └── utils.py             # 文件名生成与辅助函数
-├── tests/                       # 基于 pytest 的测试用例
-├── example/                     # 示例脚本与 CSV 数据
+│       ├── config.py            # Global parameters and color sets
+│       ├── curves.py            # Core curve plotting functions
+│       ├── schematic.py         # Particle schematic functions
+│       ├── heatmap.py           # Particle heatmap plotting
+│       ├── style.py             # Default plot styling
+│       └── utils.py             # Filename generator and helpers
+├── tests/                       # Pytest-based test cases
+├── example/                     # Example scripts and CSV data
 │   ├── data/
 │   └── test_example_plot.py
-├── figures/                     # 输出图片（自动生成）
-├── pyproject.toml               # 构建配置
-├── setup.py                     # 传统安装配置
+├── figures/                     # Output figures (auto-generated)
+│   └── ShowExample/             # Example figures for documentation
+├── requirements.txt             # Required dependencies
+├── pyproject.toml               # Build configuration
+├── setup.py                     # Legacy install config
 ├── LICENSE
-└── README.md
+├── README.md
+└── README_zh.md                 # Chinese version of the README
 ```
 
 ---

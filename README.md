@@ -4,7 +4,7 @@
 
 # BoPlotKit
 
-**BoPlotKit** is a modular, extensible scientific plotting toolkit developed for researchers, scientists, and engineers. It provides clean and consistent APIs to generate high-quality, publication-ready figures such as curve plots, particle schematics, and residual analysis.
+**BoPlotKit** is a modular and extensible scientific plotting toolkit designed for researchers, scientists, and engineers. It offers a clean, consistent API for generating high-quality, publication-ready figures—including curve plots, particle schematics, heatmaps, and residual analysis. With minimal dependencies and a focus on usability, BoPlotKit streamlines the process of visualizing complex data for both quick exploration and formal presentation.
 
 ---
 
@@ -14,10 +14,15 @@
 - **Unified Aesthetics**: Consistent visual themes with predefined colors, markers, and line styles.
 - **Flexible Curve Plotting**: Support for multiple curves, residual comparison, log/scientific scale, truncation, axis customization, and multi-format legends.
 - **Schematic Plotting**: Easily create particle distributions and domain diagrams.
-- **Smart File Naming**: Auto-generated filenames in the format `boplot_<timestamp>_<title>.png`.
+- **Heatmap Visualization**: Generate particle-based heatmaps for spatial data analysis.
+- **Batch Plotting**: Plot multiple datasets or figures in a single call for efficient workflow.
+- **Smart File Naming**: Auto-generated filenames in the format `BoPlotKit_<timestamp>_<title>.png`.
 - **Minimal Dependencies**: Built on top of Matplotlib, NumPy, and Pandas.
 - **Easy Integration**: Can be used as a standalone package or imported into larger Python-based workflows.
+- **Customizable Styles**: Easily adjust plot styles, color palettes, and legend layouts.
+- **Publication-Ready Output**: High-resolution figures suitable for academic papers and presentations.
 - **Test-Driven Development**: Comes with robust test cases to ensure stability and correctness.
+- **Comprehensive Examples**: Includes example scripts and data for quick start and advanced usage.
 
 ---
 
@@ -151,6 +156,7 @@ BoPlotKit/
 │       ├── config.py            # Global parameters and color sets
 │       ├── curves.py            # Core curve plotting functions
 │       ├── schematic.py         # Particle schematic functions
+│       ├── heatmap.py           # Particle heatmap plotting
 │       ├── style.py             # Default plot styling
 │       └── utils.py             # Filename generator and helpers
 ├── tests/                       # Pytest-based test cases
@@ -158,10 +164,13 @@ BoPlotKit/
 │   ├── data/
 │   └── test_example_plot.py
 ├── figures/                     # Output figures (auto-generated)
+│   └── ShowExample/             # Example figures for documentation
+├── requirements.txt             # Required dependencies
 ├── pyproject.toml               # Build configuration
 ├── setup.py                     # Legacy install config
 ├── LICENSE
-└── README.md
+├── README.md
+└── README_zh.md                 # Chinese version of the README
 ```
 
 ---
