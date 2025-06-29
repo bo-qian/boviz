@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:29:33
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-27 18:06:00
+LastEditTime: 2025-06-29 16:46:15
 FilePath: /BoPlotKit/src/BoPlotKit/style.py
 Description: This module provides functions to set default styles for plots in BoPlotKit.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -14,20 +14,35 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from matplotlib import ticker
 
-def set_default_style():
+def set_default_style(bold: bool = True):
     plt.rcParams.update({
         'font.family': 'serif',
         'font.serif': ['Times New Roman'],
-        'font.weight': 'bold',
+        'font.weight': 'bold' if bold else 'normal',
         'font.size': 32,
         'mathtext.fontset': 'custom',
         'mathtext.rm': 'Times New Roman',
         'mathtext.it': 'Times New Roman:italic',
-        'mathtext.bf': 'Times New Roman:bold',
+        'mathtext.bf': 'Times New Roman:bold' if bold else 'Times New Roman',
         'axes.unicode_minus': False,
-        'axes.linewidth': 3,
-        'xtick.major.width': 3,
-        'ytick.major.width': 3,
+        'legend.fontsize': 28
+    })
+
+
+def set_sans_style(bold: bool = True):
+    """
+    Set the default style for plots using sans-serif fonts.
+    """
+    plt.rcParams.update({
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['Arial'],
+        'font.weight': 'bold' if bold else 'normal',
+        'font.size': 32,
+        'mathtext.fontset': 'custom',
+        'mathtext.rm': 'Arial',
+        'mathtext.it': 'Arial:italic',
+        'mathtext.bf': 'Arial:bold' if bold else 'Arial',
+        'axes.unicode_minus': False,
         'legend.fontsize': 28
     })
 
@@ -203,3 +218,41 @@ def plot_residual_curves(
     ax_res.set_ylabel("Residual", fontweight='bold')
     ax_res.set_xlabel(xy_label[0] if xy_label and xy_label[0] else x_title_fallback, fontweight='bold')
     ax_res.legend(fontsize=20)
+
+
+def set_smart_xy_ticks(ax, extent=None):
+    """
+    为 ax 自动设置 x 和 y 轴的主刻度，使其间隔为 (5,10,20,25,30,50,100) 中的一个，
+    且总刻度数在 5 到 9 之间。
+    
+    参数：
+        ax : matplotlib.axes.Axes
+            目标坐标轴对象
+        extent : tuple or None
+            可选的 (x0, x1, y0, y1)，若为 None 则自动从 ax 获取当前坐标范围
+    """
+    step_candidates = (5, 10, 20, 25, 30, 40, 50, 100)
+
+    def compute_ticks(start, end):
+        range_ = end - start
+        for step in step_candidates:
+            ticks_count = range_ / step
+            if ticks_count.is_integer() and 4 <= ticks_count <= 7:
+                break
+        else:
+            # fallback：选一个最接近7个刻度的
+            step = min(step_candidates, key=lambda s: abs((range_ / s) - 6))
+
+        ticks = np.arange(start, end + 0.5 * step, step)
+        return np.round(ticks, 8)
+
+    if extent is not None:
+        x0, x1, y0, y1 = extent
+    else:
+        x0, x1 = ax.get_xlim()
+        y0, y1 = ax.get_ylim()
+
+    ax.set_xticks(compute_ticks(x0, x1))
+    ax.set_yticks(compute_ticks(y0, y1))
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(y0, y1)

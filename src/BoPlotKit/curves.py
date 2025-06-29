@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:38:39
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-27 18:24:08
+LastEditTime: 2025-06-29 17:06:51
 FilePath: /BoPlotKit/src/BoPlotKit/curves.py
 Description: This module provides functions to plot curves with various styles and options, including support for multiple curves, residual analysis, and custom styling.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -18,7 +18,7 @@ from matplotlib import ticker
 from matplotlib.ticker import FuncFormatter, FixedLocator, NullLocator, NullFormatter
 
 from BoPlotKit.config import GLOBAL_COLORS, set_default_dpi_figsize_savedir, set_residual_dpi_figsize_savedir
-from BoPlotKit.style import set_default_style, set_ax_style, apply_axis_scientific_format, apply_axis_limits_and_ticks, save_or_display_legend, plot_residual_curves
+from BoPlotKit.style import set_default_style, set_ax_style, apply_axis_scientific_format, apply_axis_limits_and_ticks, save_or_display_legend, plot_residual_curves, set_sans_style
 from BoPlotKit.utils import generate_plot_filename, load_data_csv, save_figure
 
 def update_curve_plotting_with_styles(ax, x_data, y_data, label, index):
@@ -76,7 +76,9 @@ def plot_curves_csv(
     sci: tuple[float, float] = [None, None],
     color_group: list[int] = None,
     show: bool = False,
-    save: bool = False
+    save: bool = False,
+    font_style: str = None,
+    font_weight: str = "bold",
 ) -> str:
     """
     绘制一条或多条曲线，支持多种样式控制与残差分析的通用函数。
@@ -107,12 +109,29 @@ def plot_curves_csv(
         color_group (List[int], optional): 每条曲线的颜色索引（用于自定义颜色组）。
         show (bool, optional): 是否在绘制完成后显示图像，默认不显示。
         save (bool, optional): 是否保存图像，默认不保存。
+        font_style (str, optional): 字体样式，默认为 Times。可选值为 'sans' 或 None。
+        font_weight (str, optional): 字体粗细，默认为 "bold"。可选值为 'bold' 或 'normal'。
 
     Returns:
         None. 图像将自动保存至默认目录，并在终端打印保存路径。
     """
     
-    set_default_style()
+    if not font_style:
+        if font_weight == 'bold':
+            set_default_style(bold=True)
+        elif font_weight == 'normal':
+            set_default_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    elif font_style == 'sans':
+        if font_weight == 'bold':
+            set_sans_style(bold=True)
+        elif font_weight == 'normal':
+            set_sans_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    else:
+        raise ValueError("Invalid font_style. Choose 'sans' or None.")
 
     if show_residual:
         dpi, figuresize, savedir = set_residual_dpi_figsize_savedir()
@@ -122,7 +141,7 @@ def plot_curves_csv(
         dpi, figuresize, savedir = set_default_dpi_figsize_savedir()
         fig, ax_main = plt.subplots(figsize=figuresize, dpi=dpi)
         ax_res = None
-    save_dir = os.path.join(savedir, "PlotCurves")
+    save_dir = os.path.join(savedir, "Curves")
 
     # Set the main axis style
     for ax in [ax_main] + ([ax_res] if ax_res is not None else []):
@@ -137,7 +156,7 @@ def plot_curves_csv(
     if len(path) > 1:
         if not xy_label or not xy_label[0] or not xy_label[1]:
             raise ValueError("When plotting multiple curves, please specify 'xy_label' explicitly.")
-        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight='bold')
+        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight=font_weight)
         
         for i in range(len(path)):
             x_data, y_data, x_colname, y_colname = load_data_csv(
@@ -182,10 +201,10 @@ def plot_curves_csv(
             raise ValueError("The current CSV data does not have column names. Please specify the 'xy_label' parameter.")
         if not xy_label:
             xy_label = [x_colname, y_colname]
-        ax_main.set_title(title_figure or f'Curve of {xy_label[1]}', pad=20, fontweight='bold')
+        ax_main.set_title(title_figure or f'Curve of {xy_label[1]}', pad=20, fontweight=font_weight)
 
-    ax_main.set_xlabel(xy_label[0], fontweight='bold')
-    ax_main.set_ylabel(xy_label[1], fontweight='bold')
+    ax_main.set_xlabel(xy_label[0], fontweight=font_weight)
+    ax_main.set_ylabel(xy_label[1], fontweight=font_weight)
 
     label_suffix = f"({information})" if information else None
 
@@ -265,7 +284,9 @@ def plot_curves(
     sci: tuple[float, float] = (None, None),
     color_group: list[int] = None,
     show: bool = False,
-    save: bool = False
+    save: bool = False,
+    font_style: str = None,
+    font_weight: str = "bold",
 ) -> str:
     """
     绘制一条或多条曲线，支持多种样式控制与残差分析的通用函数。
@@ -294,6 +315,8 @@ def plot_curves(
         color_group (List[int], optional): 每条曲线的颜色索引（用于自定义颜色组）。
         show (bool, optional): 是否在绘制完成后显示图像，默认不显示。
         save (bool, optional): 是否保存图像，默认不保存。
+        font_style (str, optional): 字体样式，默认为 Times。可选值为 'sans' 或 None。
+        font_weight (str, optional): 字体粗细，默认为 "bold"。可选值为 'bold' 或 'normal'.
 
     Returns:
         str: 保存的图像路径。
@@ -303,8 +326,23 @@ def plot_curves(
         ValueError: 如果 xy_label 在多条曲线绘制时未指定。
         ValueError: 如果 xy_label 在单条曲线绘制时未指定且数据没有列名。
     """
-
-    set_default_style()
+    
+    if not font_style:
+        if font_weight == 'bold':
+            set_default_style(bold=True)
+        elif font_weight == 'normal':
+            set_default_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    elif font_style == 'sans':
+        if font_weight == 'bold':
+            set_sans_style(bold=True)
+        elif font_weight == 'normal':
+            set_sans_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    else:
+        raise ValueError("Invalid font_style. Choose 'sans' or None.")
 
     if show_residual:
         dpi, figuresize, savedir = set_residual_dpi_figsize_savedir()
@@ -314,7 +352,7 @@ def plot_curves(
         dpi, figuresize, savedir = set_default_dpi_figsize_savedir()
         fig, ax_main = plt.subplots(figsize=figuresize, dpi=dpi)
         ax_res = None
-    save_dir = os.path.join(savedir, "PlotCurves")
+    save_dir = os.path.join(savedir, "Curves")
 
     for ax in [ax_main] + ([ax_res] if ax_res is not None else []):
         set_ax_style(ax)
@@ -350,14 +388,14 @@ def plot_curves(
     if len(data) > 1:
         if not xy_label or not xy_label[0] or not xy_label[1]:
             raise ValueError("When plotting multiple curves, please specify 'xy_label' explicitly.")
-        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight='bold')
+        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight=font_weight)
     else:
         if not xy_label:
             raise ValueError("For single curve, 'xy_label' is required when no column name is provided.")
-        ax_main.set_title(title_figure or f'Curve of {xy_label[1]}', pad=20, fontweight='bold')
+        ax_main.set_title(title_figure or f'Curve of {xy_label[1]}', pad=20, fontweight=font_weight)
 
-    ax_main.set_xlabel(xy_label[0], fontweight='bold')
-    ax_main.set_ylabel(xy_label[1], fontweight='bold')
+    ax_main.set_xlabel(xy_label[0], fontweight=font_weight)
+    ax_main.set_ylabel(xy_label[1], fontweight=font_weight)
 
     if sci[0]:
         apply_axis_scientific_format(ax_main, 'x', sci[0])

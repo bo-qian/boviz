@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-28 01:28:01
+LastEditTime: 2025-06-29 17:15:03
 FilePath: /BoPlotKit/example/example_plot.py
 Description: Test script for BoPlotKit, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -38,8 +38,7 @@ plot_curves_csv(
     use_marker=[True, True, False, False],
     legend_ncol=2,
     save=True,
-    show=False,
-    information="shrinkage_comparison"
+    show=False
 )
 
 # 3. 单曲线绘图：绘制单条模拟曲线
@@ -50,8 +49,7 @@ plot_curves_csv(
     y=[3],
     title_figure="Shrinkage at 800K",
     save=True,
-    show=False,
-    information="single_curve"
+    show=False
 )
 
 # 4. 样式演示：展示不同颜色、marker、线型等样式
@@ -64,8 +62,7 @@ plot_curves_csv(
     use_marker=[True, True],
     title_figure="Style Demo",
     save=True,
-    show=False,
-    information="style_demo"
+    show=False
 )
 
 # 5. 残差分析图：展示两条曲线的残差
@@ -78,19 +75,29 @@ plot_curves_csv(
     title_figure="Residual Analysis",
     show=False,
     save=True,
-    show_residual=True,
-    information="residual_demo"
+    show_residual=True
 )
 
 # 6. 直接传入数据进行绘图
-x = np.linspace(0, 6*np.pi, 200)
+x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
 plot_curves(
     data=[(x, y)],
     label=["$\sin(x)$"],
     xy_label=("$x$", "$\sin(x)$"),
-    use_marker=[True],
     title_figure="Sine Wave Example",
     save=True,
-    show=True
+    show=False
+)
+
+# 7. 热力图示例：生成初始粒子分布的热力图
+plot_heatmap_particle(
+    particle_x_num=2,
+    particle_y_num=1,
+    particle_radius=30,
+    border=1,
+    cmap='coolwarm',
+    title_figure="Particle Heatmap Example",
+    save=True,
+    show=False
 )

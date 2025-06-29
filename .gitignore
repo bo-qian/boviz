@@ -191,7 +191,9 @@ Desktop.ini
 *.png
 
 # Then explicitly allow just these two
-!figures/initial_schematic/boplot_InitialParticleDistribution.png
-!figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png
+!figures/ShowExample/BoPlotKit_InitialParticleDistribution.png
+!figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png
+!figures/ShowExample/BoPlotKit_SineWaveExample.png
+!figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png
 
 # End of file

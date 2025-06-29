@@ -58,8 +58,8 @@ plot_initial_particle_schematic(
   save=True
 )
 
-# Multi-curve comparison: Shrinkage ratio under different experimental and simulation conditions
-plot_curves(
+# Multiple feature curve plotting
+plot_curves_csv(
   path=["example/data/test_plotkit_multifeature_data.csv"] * 4,
   label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
   x=[0, 0, 0, 0],

@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-27 17:05:56
+LastEditTime: 2025-06-29 17:06:32
 FilePath: /BoPlotKit/src/BoPlotKit/schematic_particles.py
 Description: This module provides a function to plot the initial distribution of particles in a schematic format, including their positions and radii.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from BoPlotKit.config import set_default_dpi_figsize_savedir
-from BoPlotKit.style import set_default_style, set_ax_style
+from BoPlotKit.style import set_default_style, set_ax_style, set_sans_style
 from BoPlotKit.utils import generate_plot_filename
 
 def plot_initial_particle_schematic(
@@ -24,7 +24,9 @@ def plot_initial_particle_schematic(
     domain: list,
     title: str = "Initial Particle Distribution",
     show: bool = False,
-    save: bool = False
+    save: bool = False,
+    font_style: str = None,
+    font_weight: str = "bold",
 ):
     """
     绘制初始粒子分布的示意图
@@ -35,10 +37,27 @@ def plot_initial_particle_schematic(
         title (str): 图表标题。
         show (bool): 是否显示图像，默认不显示。
         save (bool): 是否保存图像，默认不保存。
+        font_style (str): 字体样式，默认为 Times。可选值为 'sans' 或 None。
+        font_weight (str): 字体粗细，默认为 "bold"。可选值为 'bold' 或 'normal'.
     """
-    set_default_style()  # 设置默认样式
-    # 创建保存目录
-    save_dir = os.path.join(set_default_dpi_figsize_savedir()[2], "initial_schematic")
+    if not font_style:
+        if font_weight == 'bold':
+            set_default_style(bold=True)
+        elif font_weight == 'normal':
+            set_default_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    elif font_style == 'sans':
+        if font_weight == 'bold':
+            set_sans_style(bold=True)
+        elif font_weight == 'normal':
+            set_sans_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    else:
+        raise ValueError("Invalid font_style. Choose 'sans' or None.")
+
+    save_dir = os.path.join(set_default_dpi_figsize_savedir()[2], "InitialSchematic")
 
     filename = generate_plot_filename(title=title)
     save_path = os.path.join(save_dir, filename)
@@ -74,9 +93,9 @@ def plot_initial_particle_schematic(
 
     ax.grid(True, linestyle='--', linewidth=3, zorder=1)
     plt.tick_params(axis='both', direction='in', width=3, which='both', pad=10)
-    plt.xlabel('X-axis', fontweight='bold')
-    plt.ylabel('Y-axis', fontweight='bold')
-    plt.title(title, pad=20, fontweight='bold')
+    plt.xlabel('X-axis', fontweight=font_weight)
+    plt.ylabel('Y-axis', fontweight=font_weight)
+    plt.title(title, pad=20, fontweight=font_weight)
 
     plt.tight_layout()
     if save:

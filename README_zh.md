@@ -55,7 +55,7 @@ plot_initial_particle_schematic(
 )
 
 # 多曲线对比：不同实验和模拟条件下的收缩率对比
-plot_curves(
+plot_curves_csv(
   path=["example/data/test_plotkit_multifeature_data.csv"] * 4,
   label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
   x=[0, 0, 0, 0],

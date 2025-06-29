@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 19:27:14
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-28 01:31:49
+LastEditTime: 2025-06-29 17:18:54
 FilePath: /BoPlotKit/setup.py
 Description: This script sets up the BoPlotKit package for distribution, including metadata and dependencies.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="BoPlotKit",
-    version="0.1.6",
+    version="0.1.7",
     author="Bo Qian",
     author_email="bqian@shu.edu.cn",
     description="Bo Qian's advanced scientific plotting toolkit",

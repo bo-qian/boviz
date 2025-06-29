@@ -16,7 +16,8 @@ Email: bqian@shu.edu.cn
 """
 
 from .config import GLOBAL_COLORS, set_default_dpi_figsize_savedir, set_residual_dpi_figsize_savedir
-from .style import set_default_style, set_ax_style, apply_axis_scientific_format, apply_axis_limits_and_ticks, save_or_display_legend, plot_residual_curves
-from .utils import generate_plot_filename, load_data_csv, save_figure
+from .style import set_default_style, set_ax_style, apply_axis_scientific_format, apply_axis_limits_and_ticks, save_or_display_legend, plot_residual_curves, set_sans_style, set_smart_xy_ticks
+from .utils import generate_plot_filename, load_data_csv, save_figure, generate_particle_layout, build_tanh_phase_field
 from .curves import plot_curves_csv, plot_curves
+from .heatmap import plot_heatmap_particle
 from .schematic_particles import plot_initial_particle_schematic
