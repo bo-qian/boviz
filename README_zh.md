@@ -96,11 +96,11 @@ plot_heatmap_particle(
 <table align="center">
   <tr>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
       <sub><b>初始粒子分布</b></sub>
     </td>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
+      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
       <sub><b>不同温度下的收缩率对比</b></sub>
     </td>
   </tr>
