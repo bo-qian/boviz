@@ -65,8 +65,31 @@ plot_curves_csv(
   use_marker=[True, True, False, False],
   legend_ncol=2,
   save=True,
-  show=False,
-  information="shrinkage_comparison"
+  show=True
+)
+
+# 直接传入数据进行绘图
+x = np.linspace(0, 4*np.pi, 200)
+y = np.sin(x)
+plot_curves(
+    data=[(x, y)],
+    label=["$\sin(x)$"],
+    xy_label=("$x$", "$\sin(x)$"),
+    title_figure="Sine Wave Example",
+    save=True,
+    show=True
+)
+
+# 热力图示例：生成初始粒子分布的热力图
+plot_heatmap_particle(
+    particle_x_num=2,
+    particle_y_num=1,
+    particle_radius=30,
+    border=1,
+    cmap='coolwarm',
+    title_figure="Particle Heatmap Example",
+    save=True,
+    show=False
 )
 ```
 
@@ -75,6 +98,14 @@ plot_curves_csv(
 <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="300"/>
 &nbsp;
 <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="300"/>
+
+</div>
+
+<div align="center" style="display: flex; gap: 16px;">
+
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="正弦波示例" height="300"/>
+&nbsp;
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="粒子热图示例" height="300"/>
 
 </div>
 

@@ -69,16 +69,47 @@ plot_curves_csv(
   use_marker=[True, True, False, False],
   legend_ncol=2,
   save=True,
-  show=False,
-  information="shrinkage_comparison"
+  show=False
+)
+
+# Single curve plotting: Plot a single simulation curve
+x = np.linspace(0, 4*np.pi, 200)
+y = np.sin(x)
+plot_curves(
+    data=[(x, y)],
+    label=["$\sin(x)$"],
+    xy_label=("$x$", "$\sin(x)$"),
+    title_figure="Sine Wave Example",
+    save=True,
+    show=True
+)
+
+# Particle heatmap example
+plot_heatmap_particle(
+    particle_x_num=2,
+    particle_y_num=1,
+    particle_radius=30,
+    border=1,
+    cmap='coolwarm',
+    title_figure="Particle Heatmap Example",
+    save=True,
+    show=False
 )
 ```
 
 <div align="center" style="display: flex; gap: 16px;">
 
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/initial_schematic/boplot_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="Initial Particle Distribution Schematic" height="300"/>
 &nbsp;
-<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/PlotCurves/boplot_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="300"/>
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="Shrinkage Ratio Comparison at Different Temperatures" height="300"/>
+
+</div>
+
+<div align="center" style="display: flex; gap: 16px;">
+
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="Sine Wave Example" height="300"/>
+&nbsp;
+<img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="Particle Heatmap Example" height="300"/>
 
 </div>
 
