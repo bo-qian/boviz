@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:38:39
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 17:06:51
+LastEditTime: 2025-06-29 18:48:29
 FilePath: /BoPlotKit/src/BoPlotKit/curves.py
 Description: This module provides functions to plot curves with various styles and options, including support for multiple curves, residual analysis, and custom styling.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -224,7 +224,7 @@ def plot_curves_csv(
 
     if ylog:
         ax_main.set_yscale('log')
-        ax_main.set_ylim(0.0, 0.6)
+        ax_main.set_ylim(1e-3, 0.6)
         ax_main.yaxis.set_major_locator(FixedLocator([0.002, 0.01, 0.1, 0.6]))
         ax_main.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:g}'))
         ax_main.yaxis.set_minor_locator(NullLocator())
