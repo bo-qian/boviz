@@ -202,6 +202,8 @@ matplotlib>=3.0
 numpy>=1.18
 pandas>=1.0
 pytest>=6.0
+pathlib>=1.0
+argparse>=1.4.0
 ```
 
 安装依赖：
