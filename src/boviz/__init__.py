@@ -1,5 +1,5 @@
 """
-BoPlotKit: A Python plotting toolkit for scientific visualization.
+boviz: A Python plotting toolkit for scientific visualization.
 
 This package exports:
     - plot_curves: Plotting of scientific curves with customizable styles.
@@ -8,7 +8,7 @@ This package exports:
     - generate_plot_filename: Utility for generating plot filenames.
     - GLOBAL_COLORS, DEFAULT_SAVE_DIR, DEFAULT_DPI, DEFAULT_FIGSIZE: Global configuration constants.
 
-Programs that import and use 'BoPlotKit' can easily create publication-quality plots
+Programs that import and use 'boviz' can easily create publication-quality plots
 with consistent styles and convenient utilities.
 
 Author: Bo Qian

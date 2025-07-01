@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "BoPlotKit"
-version = "0.1.7"
+name = "boviz"
+version = "0.1.8"
 description = "An advanced and flexible scientific plotting toolkit."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -16,9 +16,14 @@ dependencies = [
   "matplotlib>=3.0",
   "numpy>=1.18",
   "pandas>=1.0",
-  "pytest>=6.0"
+  "pytest>=6.0",
+  "pathlib>=1.0",
+  "argparse>=1.4.0"
 ]
 
 [project.urls]
-Homepage = "https://github.com/bo-qian/BoPlotKit"
-Repository = "https://github.com/bo-qian/BoPlotKit"
+Homepage = "https://github.com/bo-qian/boviz"
+Repository = "https://github.com/bo-qian/boviz"
+
+[project.scripts]
+boviz = "boviz.cli:main"

@@ -3,7 +3,7 @@ Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
 LastEditTime: 2025-06-29 17:06:19
-FilePath: /BoPlotKit/src/BoPlotKit/heatmap.py
+FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
@@ -13,9 +13,9 @@ import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
-from BoPlotKit.style import set_default_style, set_smart_xy_ticks, set_sans_style
-from BoPlotKit.config import set_default_dpi_figsize_savedir
-from BoPlotKit.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure
+from boviz.style import set_default_style, set_smart_xy_ticks, set_sans_style
+from boviz.config import set_default_dpi_figsize_savedir
+from boviz.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure
 
 
 def plot_heatmap_particle(

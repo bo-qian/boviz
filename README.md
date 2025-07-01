@@ -2,9 +2,9 @@
   <b>English</b> | <a href="README_zh.md"><b>中文</b></a>
 </p>
 
-# BoPlotKit
+# boviz
 
-**BoPlotKit** is a modular and extensible scientific plotting toolkit designed for researchers, scientists, and engineers. It offers a clean, consistent API for generating high-quality, publication-ready figures—including curve plots, particle schematics, heatmaps, and residual analysis. With minimal dependencies and a focus on usability, BoPlotKit streamlines the process of visualizing complex data for both quick exploration and formal presentation.
+**boviz** is a modular and extensible scientific plotting toolkit designed for researchers, scientists, and engineers. It offers a clean, consistent API for generating high-quality, publication-ready figures—including curve plots, particle schematics, heatmaps, and residual analysis. With minimal dependencies and a focus on usability, boviz streamlines the process of visualizing complex data for both quick exploration and formal presentation.
 
 ---
 
@@ -16,28 +16,29 @@
 - **Schematic Plotting**: Easily create particle distributions and domain diagrams.
 - **Heatmap Visualization**: Generate particle-based heatmaps for spatial data analysis.
 - **Batch Plotting**: Plot multiple datasets or figures in a single call for efficient workflow.
-- **Smart File Naming**: Auto-generated filenames in the format `BoPlotKit_<timestamp>_<title>.png`.
+- **Smart File Naming**: Auto-generated filenames in the format `boviz_<timestamp>_<title>.png`.
 - **Minimal Dependencies**: Built on top of Matplotlib, NumPy, and Pandas.
 - **Easy Integration**: Can be used as a standalone package or imported into larger Python-based workflows.
 - **Customizable Styles**: Easily adjust plot styles, color palettes, and legend layouts.
 - **Publication-Ready Output**: High-resolution figures suitable for academic papers and presentations.
 - **Test-Driven Development**: Comes with robust test cases to ensure stability and correctness.
 - **Comprehensive Examples**: Includes example scripts and data for quick start and advanced usage.
+- **Project Scaffolding CLI**: Instantly scaffold a new plotting project structure using `boviz init <project_name>` from the command line.
 
 ---
 
 ## 📦 Installation
 
 ```bash
-pip install BoPlotKit
+pip install boviz
 ```
 
 Or, to install the development or latest version from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/bo-qian/BoPlotKit.git
-cd BoPlotKit
+git clone https://github.com/bo-qian/boviz.git
+cd boviz
 
 # (Optional) Create a virtual environment
 python -m venv venv && source venv/bin/activate
@@ -45,6 +46,28 @@ python -m venv venv && source venv/bin/activate
 # Install the package from source
 pip install .
 ```
+
+---
+
+## 📖 Usage
+
+You can quickly scaffold a new boviz-based project using the built-in CLI:
+
+```bash
+boviz init my_project
+```
+
+This command creates a new directory `my_project` with a recommended structure, including example scripts and configuration files. It helps you get started with best practices for organizing your plotting workflow.
+
+**Generated structure:**
+```
+my_project/
+├── data/
+│   └── example.csv
+└── plot.py
+```
+
+After initialization, you can immediately start adding your data and scripts, and use boviz's plotting functions as shown below.
 
 ---
 
@@ -105,21 +128,21 @@ plot_heatmap_particle(
 <table align="center">
   <tr>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
       <sub><b>Initial Particle Distribution</b></sub>
     </td>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
       <sub><b>Shrinkage Comparison</b></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="正弦波示例" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_SineWaveExample.png" alt="正弦波示例" height="240"/><br/>
       <sub><b>Sine Wave Example</b></sub>
     </td>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="粒子热图示例" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_ParticleHeatmapExample.png" alt="粒子热图示例" height="240"/><br/>
       <sub><b>Particle Heatmap Example</b></sub>
     </td>
   </tr>
@@ -135,7 +158,7 @@ To run all tests, use:
 python -m pytest
 ```
 
-> **Note:** On Windows, if you installed BoPlotKit in a Conda environment, make sure to run this command from the Conda terminal (Anaconda Prompt or your activated Conda shell), not from the default system terminal.
+> **Note:** On Windows, if you installed boviz in a Conda environment, make sure to run this command from the Conda terminal (Anaconda Prompt or your activated Conda shell), not from the default system terminal.
 
 All core plotting functions are covered by unit tests under the `tests/` directory, including:
 
@@ -149,10 +172,12 @@ All core plotting functions are covered by unit tests under the `tests/` directo
 ## 📁 Project Structure
 
 ```
-BoPlotKit/
+boviz/
 ├── src/
-│   └── boplot/
+│   └── boviz/
 │       ├── __init__.py
+│       ├── __main__.py          # Main entry point for the package
+│       ├── cli.py               # Command-line interface for plotting
 │       ├── config.py            # Global parameters and color sets
 │       ├── curves.py            # Core curve plotting functions
 │       ├── schematic.py         # Particle schematic functions
@@ -210,4 +235,4 @@ GNU General Public License v3 (GPLv3) License © 2025 Bo Qian
 
 ---
 
-For advanced examples and API documentation, please refer to the `tests/` and `example/` directories, or explore the docstrings inside the `src/BoPlotKit/` module.
+For advanced examples and API documentation, please refer to the `tests/` and `example/` directories, or explore the docstrings inside the `src/boviz/` module.

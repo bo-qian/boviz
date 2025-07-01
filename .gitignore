@@ -160,7 +160,7 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# BoPlotKit project specific ignores
+# boviz project specific ignores
 figures/
 !figures/.gitkeep  # Keep the directory but ignore its contents
 
@@ -191,9 +191,9 @@ Desktop.ini
 *.png
 
 # Then explicitly allow just these two
-!figures/ShowExample/BoPlotKit_InitialParticleDistribution.png
-!figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png
-!figures/ShowExample/BoPlotKit_SineWaveExample.png
-!figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png
+!figures/ShowExample/boviz_InitialParticleDistribution.png
+!figures/ShowExample/boviz_ShrinkageComparisonatTwoTemperatures.png
+!figures/ShowExample/boviz_SineWaveExample.png
+!figures/ShowExample/boviz_ParticleHeatmapExample.png
 
 # End of file

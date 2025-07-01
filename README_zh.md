@@ -1,6 +1,6 @@
-# BoPlotKit 中文文档
+# boviz 中文文档
 
-**BoPlotKit** 是为研究人员、科学家和工程师设计的模块化、可扩展科学绘图工具包。它提供简洁一致的 API，可生成高质量、可用于发表的图形，包括曲线图、粒子示意图、热力图和残差分析。BoPlotKit 依赖极少，注重易用性，能够高效地帮助用户可视化复杂数据，无论是快速探索还是正式展示都得心应手。
+**boviz** 是为研究人员、科学家和工程师设计的模块化、可扩展科学绘图工具包。它提供简洁一致的 API，可生成高质量、可用于发表的图形，包括曲线图、粒子示意图、热力图和残差分析。boviz 依赖极少，注重易用性，能够高效地帮助用户可视化复杂数据，无论是快速探索还是正式展示都得心应手。
 
 ---
 
@@ -12,28 +12,29 @@
 - **示意图绘制**：便捷生成粒子分布和区域示意图。
 - **热力图可视化**：基于粒子的热力图，适用于空间数据分析。
 - **批量绘图**：一次调用即可绘制多组数据或多张图，提升效率。
-- **智能文件命名**：自动生成如 `BoPlotKit_<timestamp>_<title>.png` 格式的文件名。
+- **智能文件命名**：自动生成如 `boviz_<timestamp>_<title>.png` 格式的文件名。
 - **极简依赖**：仅依赖 Matplotlib、NumPy 和 Pandas。
 - **易于集成**：既可独立使用，也可嵌入更大 Python 工作流。
 - **可定制样式**：支持自定义绘图风格、配色方案和图例布局。
 - **发表级输出**：高分辨率图片，适用于学术论文和演示。
 - **测试驱动开发**：内置丰富测试用例，保障稳定性与正确性。
 - **丰富示例**：附带示例脚本和数据，便于快速上手和进阶使用。
+- **项目脚手架 CLI**：通过命令行使用 `boviz init <project_name>` 快速搭建新的绘图项目结构。
 
 ---
 
 ## 📦 安装方法
 
 ```bash
-pip install BoPlotKit
+pip install boviz
 ```
 
 或通过克隆仓库安装最新版（开发或获取最新特性）：
 
 ```bash
 # 克隆仓库
-git clone https://github.com/bo-qian/BoPlotKit.git
-cd BoPlotKit
+git clone https://github.com/bo-qian/boviz.git
+cd boviz
 
 # （可选）创建虚拟环境
 python -m venv venv && source venv/bin/activate
@@ -41,6 +42,28 @@ python -m venv venv && source venv/bin/activate
 # 源码安装
 pip install .
 ```
+
+---
+
+## 📖 使用方法
+
+你可以通过内置的命令行工具快速搭建一个基于 boviz 的新项目：
+
+```bash
+boviz init my_project
+```
+
+该命令会创建一个名为 `my_project` 的新目录，包含推荐的项目结构、示例脚本和配置文件，帮助你以最佳实践组织绘图工作流。
+
+**生成的目录结构：**
+```
+my_project/
+├── data/
+│   └── example.csv
+└── plot.py
+```
+
+初始化后，你可以直接添加自己的数据和脚本，并像下方示例一样使用 boviz 的绘图函数。
 
 ---
 
@@ -101,21 +124,21 @@ plot_heatmap_particle(
 <table align="center">
   <tr>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_InitialParticleDistribution.png" alt="初始粒子分布示意图" height="240"/><br/>
       <sub><b>初始粒子分布</b></sub>
     </td>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_ShrinkageComparisonatTwoTemperatures.png" alt="不同温度下的收缩率对比" height="240"/><br/>
       <sub><b>不同温度下的收缩率对比</b></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_SineWaveExample.png" alt="正弦波示例" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_SineWaveExample.png" alt="正弦波示例" height="240"/><br/>
       <sub><b>正弦波示例</b></sub>
     </td>
     <td align="center">
-      <img src="https://github.com/bo-qian/BoPlotKit/blob/main/figures/ShowExample/BoPlotKit_ParticleHeatmapExample.png" alt="粒子热图示例" height="240"/><br/>
+      <img src="https://github.com/bo-qian/boviz/blob/main/figures/ShowExample/boviz_ParticleHeatmapExample.png" alt="粒子热图示例" height="240"/><br/>
       <sub><b>粒子热图示例</b></sub>
     </td>
   </tr>
@@ -144,28 +167,30 @@ python -m pytest
 ## 📁 项目结构
 
 ```
-BoPlotKit/
+boviz/
 ├── src/
-│   └── boplot/
+│   └── boviz/
 │       ├── __init__.py
-│       ├── config.py            # Global parameters and color sets
-│       ├── curves.py            # Core curve plotting functions
-│       ├── schematic.py         # Particle schematic functions
-│       ├── heatmap.py           # Particle heatmap plotting
-│       ├── style.py             # Default plot styling
-│       └── utils.py             # Filename generator and helpers
-├── tests/                       # Pytest-based test cases
-├── example/                     # Example scripts and CSV data
+│       ├── __main__.py          # 包主入口
+│       ├── cli.py               # 命令行绘图接口
+│       ├── config.py            # 全局参数与配色
+│       ├── curves.py            # 核心曲线绘图函数
+│       ├── schematic.py         # 粒子示意图函数
+│       ├── heatmap.py           # 粒子热力图绘制
+│       ├── style.py             # 默认绘图样式
+│       └── utils.py             # 文件名生成与辅助工具
+├── tests/                       # 基于 Pytest 的测试用例
+├── example/                     # 示例脚本与 CSV 数据
 │   ├── data/
 │   └── test_example_plot.py
-├── figures/                     # Output figures (auto-generated)
-│   └── ShowExample/             # Example figures for documentation
-├── requirements.txt             # Required dependencies
-├── pyproject.toml               # Build configuration
-├── setup.py                     # Legacy install config
+├── figures/                     # 输出图片（自动生成）
+│   └── ShowExample/             # 文档示例图片
+├── requirements.txt             # 依赖包列表
+├── pyproject.toml               # 构建配置
+├── setup.py                     # 传统安装配置
 ├── LICENSE
 ├── README.md
-└── README_zh.md                 # Chinese version of the README
+└── README_zh.md                 # 中文版说明文档
 ```
 
 ---
@@ -204,4 +229,4 @@ GNU 通用公共许可证 v3 (GPLv3) © 2025 Bo Qian
 
 ---
 
-更多高级用法和 API 说明，请参考 `tests/`、`example/` 目录或 `src/BoPlotKit/` 模块内的文档字符串。
+更多高级用法和 API 说明，请参考 `tests/`、`example/` 目录或 `src/boviz/` 模块内的文档字符串。

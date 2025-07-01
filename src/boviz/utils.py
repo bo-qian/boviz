@@ -3,8 +3,8 @@ Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
 LastEditTime: 2025-06-29 17:04:47
-FilePath: /BoPlotKit/src/BoPlotKit/utils.py
-Description: This module provides utility functions for BoPlotKit, including generating standardized plot filenames.
+FilePath: /boviz/src/boviz/utils.py
+Description: This module provides utility functions for boviz, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
 
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 def generate_plot_filename(title: str, suffix=None) -> str:
     """
-    生成统一命名格式的图片文件名，格式为：BoPlotKit_YYMMDDHHMM_title_suffix.png
+    生成统一命名格式的图片文件名，格式为：boviz_YYMMDDHHMM_title_suffix.png
 
     Args:
         title (str): 图像标题或描述性名称（可含空格，会被自动替换为下划线）。
@@ -29,9 +29,9 @@ def generate_plot_filename(title: str, suffix=None) -> str:
     timestamp = datetime.now().strftime("%y%m%d%H%M")
     title_clean = title.replace(" ", "") if title else "plot"
     if suffix is None:
-        return f"BoPlotKit_{timestamp}_{title_clean}.png"
+        return f"boviz_{timestamp}_{title_clean}.png"
     else:
-        return f"BoPlotKit_{timestamp}_{title_clean}{suffix}.png"
+        return f"boviz_{timestamp}_{title_clean}{suffix}.png"
 
 
 def save_figure(save_path: str, dpi: int = 300, verbose: bool = True):

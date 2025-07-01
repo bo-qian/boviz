@@ -3,15 +3,15 @@ Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-26 15:45:34
 LastEditors: bo-qian bqian@shu.edu.cn
 LastEditTime: 2025-06-28 01:39:40
-FilePath: /BoPlotKit/tests/test_plot_curves.py
-Description: This module contains unit tests for the BoPlotKit plotting functions, ensuring they work correctly with sample data.
+FilePath: /boviz/tests/test_plot_curves.py
+Description: This module contains unit tests for the boviz plotting functions, ensuring they work correctly with sample data.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
 import os
 import pytest
 import pandas as pd
 import matplotlib.pyplot as plt
-from BoPlotKit import plot_curves_csv, plot_curves, plot_initial_particle_schematic, generate_plot_filename
+from boviz import plot_curves_csv, plot_curves, plot_initial_particle_schematic, generate_plot_filename
 
 # 测试数据路径（假设你提供了样例 csv）
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
