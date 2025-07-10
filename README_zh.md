@@ -210,6 +210,8 @@ pandas>=1.0
 pytest>=6.0
 pathlib>=1.0
 argparse>=1.4.0
+meshio>=4.0
+netCDF4>=1.5
 ```
 
 安装依赖：
