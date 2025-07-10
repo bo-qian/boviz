@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-07-01 15:38:16
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:21:59
+LastEditTime: 2025-07-10 15:57:53
 FilePath: /boviz/src/boviz/cli.py
 Description: This module provides a command-line interface for boviz, allowing users to initialize a new plotting project with a template.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -13,6 +13,7 @@ from pathlib import Path
 
 TEMPLATE_CODE = '''\
 import os
+import numpy as np
 from boviz import *
 
 base_dir = os.path.dirname(os.path.abspath(__file__))

@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 19:27:14
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:35:27
+LastEditTime: 2025-07-10 15:58:28
 FilePath: /boviz/setup.py
 Description: This script sets up the boviz package for distribution, including metadata and dependencies.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="boviz",
-    version="0.1.9",
+    version="0.2.0",
     author="Bo Qian",
     author_email="bqian@shu.edu.cn",
     description="Bo Qian's advanced scientific plotting toolkit",
