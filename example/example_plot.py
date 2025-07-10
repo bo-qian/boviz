@@ -2,8 +2,8 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-01 16:37:39
-FilePath: /BoPlotKit/example/example_plot.py
+LastEditTime: 2025-07-10 14:36:39
+FilePath: /boviz/example/example_plot.py
 Description: Test script for boviz, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
@@ -83,8 +83,8 @@ x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
 plot_curves(
     data=[(x, y)],
-    label=["$\sin(x)$"],
-    xy_label=("$x$", "$\sin(x)$"),
+    label=[r"$\sin(x)$"],
+    xy_label=(r"$x$", r"$\sin(x)$"),
     title_figure="Sine Wave Example",
     save=True,
     show=False

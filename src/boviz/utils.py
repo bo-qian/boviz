@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 17:04:47
+LastEditTime: 2025-07-10 15:06:25
 FilePath: /boviz/src/boviz/utils.py
 Description: This module provides utility functions for boviz, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -12,8 +12,11 @@ Copyright (c) 2025 by Bo Qian, All Rights Reserved.
 import os
 import numpy as np
 import pandas as pd
+import meshio
 from datetime import datetime
 import matplotlib.pyplot as plt
+from netCDF4 import Dataset
+from netCDF4 import chartostring
 
 def generate_plot_filename(title: str, suffix=None) -> str:
     """
@@ -46,7 +49,7 @@ def save_figure(save_path: str, dpi: int = 300, verbose: bool = True):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
     if verbose:
-        print(f"[Saved] {save_path}")
+        print(f"[SAVE] 图像已保存到: {save_path}\n")
 
 
 def load_data_csv(
@@ -151,3 +154,107 @@ def build_tanh_phase_field(
         phase_field += 0.5 * (1 - np.tanh((distance - radius) * (2 * np.arctanh(1 - 2 * tanh_offset)) / tanh_width))
     
     return phase_field
+
+
+def load_exodus_data(
+    source: str,
+    variable_name: str,
+    time_step: int = 0,
+):
+    """
+    读取 Exodus 文件中的指定变量的指定时间步数据。
+    
+    args:
+        source (str): Exodus 文件路径。
+        variable_name (str): 要读取的变量名称。
+        time_step (int): 时间步索引，默认为 0。
+    returns:
+        coordinates (np.ndarray): 网格节点坐标数组，形状为 (N, 2)，其中 N 是节点数量。
+        variable_values (np.ndarray): 指定变量在指定时间步的值，形状为 (N,) 或 (N, M)，其中 M 是变量的维度（如标量或向量）。
+    raises:
+        ValueError: 如果指定的变量在 Exodus 文件中不存在。
+    raises:
+        FileNotFoundError: 如果指定的 Exodus 文件不存在。
+    """
+
+    print(meshio.__file__)   # 输出模块位置
+    print(meshio.read)       # 输出 read 函数指针
+
+    mesh = meshio.read(source, time_step=time_step)
+    coordinates = mesh.points
+
+
+
+    try:
+        variable_values = mesh.point_data[variable_name]
+        if variable_values.ndim == 2:
+            variable_values = variable_values[time_step]
+    except KeyError:
+        raise ValueError(f"Variable '{variable_name}' not found in the Exodus file.")
+    
+    return coordinates, variable_values
+
+
+def load_exodus_data_netcdf(source, variable_name, time_step=0):
+    with Dataset(source, 'r') as f:
+        # 获取节点坐标
+        coords_x = f.variables["coordx"][:]
+        coords_y = f.variables["coordy"][:]
+        coordinates = np.stack([coords_x, coords_y], axis=1)
+
+        # 获取变量名表
+        raw_names = f.variables["name_nod_var"][:]
+        var_names = chartostring(raw_names).tolist()
+        var_names = [n.strip() for n in var_names]
+
+        # 读取时间信息
+        time_array = f.variables["time_whole"][:]
+        num_steps = len(time_array)
+        t = time_array[time_step]
+
+        # 打印美观输出
+        print("[INFO] Exodus 数据加载信息：")
+        print(f"   ├─ 文件路径：{source}")
+        print("   ├─ 可用变量：", var_names)
+        print(f"   ├─ 当前变量：'{variable_name}'")
+        print(f"   ├─ 当前时间步：第 {time_step} 步（时间 = {time_array[time_step]:.4f}）")
+        print(f"   ├─ 总时间步数：{num_steps}")
+        preview_steps = ", ".join([f"{t:.4f}" for t in time_array[:min(5, num_steps)]])
+        tail = f", ..., {time_array[-1]:.4f}" if num_steps > 5 else ""
+        print(f"   └─ 时间序列预览：[ {preview_steps}{tail} ]")
+
+        if variable_name not in var_names:
+            raise ValueError(f"变量 '{variable_name}' 不存在，可选项: {var_names}")
+
+        print(f"[INFO] 正在绘制热图...请稍候...")
+        idx = var_names.index(variable_name) + 1
+        variable_values = f.variables[f"vals_nod_var{idx}"][time_step, :]
+    
+    # 自动生成图标题
+    math_label = get_math_label(variable_name)
+    title = f"{math_label} at {t:.4g}s"
+    save_name = f"{variable_name}_{t:.4g}"
+
+    return coordinates, variable_values, title, save_name
+
+
+def get_math_label(var_name: str) -> str:
+    """
+    将变量名称映射为 LaTeX 数学表达式字符串。
+    """
+    mapping = {
+        "F_density": r"$f$",
+        "Real_Pressure": r"$P_\mathrm{real}$",
+        "Stress_Magnitude": r"$|\boldsymbol{\sigma}|$",
+        "Stress_xx": r"$\sigma_{xx}$",
+        "Stress_xy": r"$\sigma_{xy}$",
+        "Stress_yx": r"$\sigma_{yx}$",
+        "Stress_yy": r"$\sigma_{yy}$",
+        "V_Magnitude": r"$|\boldsymbol{v}|$",
+        "c": r"$C$",
+        "mu": r"$\mu$",
+        "p": r"$p$",
+        "u": r"$u_x$",
+        "v": r"$u_y$",
+    }
+    return mapping.get(var_name, var_name)

@@ -2,8 +2,8 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 17:06:32
-FilePath: /boviz/src/boviz/schematic_particles.py
+LastEditTime: 2025-07-10 15:04:16
+FilePath: /boviz/src/boviz/schematic.py
 Description: This module provides a function to plot the initial distribution of particles in a schematic format, including their positions and radii.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
 '''
@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 from boviz.config import set_default_dpi_figsize_savedir
 from boviz.style import set_default_style, set_ax_style, set_sans_style
-from boviz.utils import generate_plot_filename
+from boviz.utils import generate_plot_filename, save_figure
 
 def plot_initial_particle_schematic(
     coordinates: list,
@@ -99,9 +99,7 @@ def plot_initial_particle_schematic(
 
     plt.tight_layout()
     if save:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, dpi=set_default_dpi_figsize_savedir()[0], bbox_inches='tight')
-        print(f"[Saved] {save_path}")
+        save_figure(save_path, dpi=set_default_dpi_figsize_savedir()[0])
     if show:
         plt.show()
     plt.close()

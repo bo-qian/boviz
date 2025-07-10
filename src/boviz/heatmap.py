@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 17:06:19
+LastEditTime: 2025-07-10 15:07:41
 FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -10,12 +10,13 @@ Copyright (c) 2025 by Bo Qian, All Rights Reserved.
 
 
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from boviz.style import set_default_style, set_smart_xy_ticks, set_sans_style
 from boviz.config import set_default_dpi_figsize_savedir
-from boviz.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure
+from boviz.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure, load_exodus_data_netcdf
 
 
 def plot_heatmap_particle(
@@ -114,6 +115,95 @@ def plot_heatmap_particle(
 
     plt.tight_layout()
     filename = generate_plot_filename(title=title_figure, suffix=label_suffix)
+    save_path = os.path.join(save_dir, filename)
+    if save:
+        save_figure(save_path, dpi=dpi)
+    if show:
+        plt.show()
+    plt.close()
+    return save_path
+
+
+def plot_heatmap_exodus2d(
+    path: str,
+    variable: str,
+    time_step: int = 0,
+    cmap: str = 'coolwarm',
+    title_figure: str = None,
+    show: bool = True,
+    save: bool = True,
+    information: str = None,
+    font_style: str = None,
+    font_weight: str = "bold",
+    show_ticks: bool = True,
+):
+    """
+    绘制 Exodus 2D 数据的热图。
+
+    Args:
+        None
+
+    Returns:
+        str: 保存的图像路径。
+    """
+    if not font_style:
+        if font_weight == 'bold':
+            set_default_style(bold=True)
+        elif font_weight == 'normal':
+            set_default_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    elif font_style == 'sans':
+        if font_weight == 'bold':
+            set_sans_style(bold=True)
+        elif font_weight == 'normal':
+            set_sans_style(bold=False)
+        else:
+            raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    else:
+        raise ValueError("Invalid font_style. Choose 'sans' or None.")
+
+    dpi, figuresize, savedir = set_default_dpi_figsize_savedir()
+    fig, ax = plt.subplots(figsize=figuresize, dpi=dpi)
+    save_dir = os.path.join(savedir, "HeatMaps")
+    label_suffix = f"({information})" if information else None
+    
+    coordinates, variable_values, title, save_name = load_exodus_data_netcdf(
+        source=path, 
+        variable_name=variable, 
+        time_step=time_step
+    )
+
+    x = coordinates[:, 0]
+    y = coordinates[:, 1]
+
+    heatmap = ax.tricontourf(x, y, variable_values, cmap=cmap, levels=256, origin='lower')
+    print(f"[INFO] 热图绘制完成。")
+
+    if show_ticks:
+        set_smart_xy_ticks(ax)
+        ax.set_xlabel('X Coordinate', fontweight=font_weight)
+        ax.set_ylabel('Y Coordinate', fontweight=font_weight)
+    else:
+        ax.set_xticks([])
+        ax.set_yticks([])
+    
+    if title_figure is None:
+        title_figure = title
+    ax.set_title(title_figure, pad=20, fontweight=font_weight)
+    ax.set_aspect('equal', adjustable='box')
+    divider = make_axes_locatable(plt.gca())
+    width = axes_size.AxesY(ax, aspect=1. / 20)
+    pad = axes_size.Fraction(0.5, width)
+    cax = divider.append_axes("right", size=width, pad=pad)
+    cbar = plt.colorbar(heatmap, cax=cax)
+    vmin, vmax = heatmap.get_clim()
+    tick_locs = np.linspace(vmin, vmax, 6)
+    cbar.set_ticks(tick_locs)
+    cbar.set_ticklabels([f"{v:.1f}".replace("-0.0", "0.0") for v in tick_locs])
+
+    plt.tight_layout()
+    filename = generate_plot_filename(title=save_name, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
     if save:
         save_figure(save_path, dpi=dpi)

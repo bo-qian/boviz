@@ -23,7 +23,12 @@
 - **Publication-Ready Output**: High-resolution figures suitable for academic papers and presentations.
 - **Test-Driven Development**: Comes with robust test cases to ensure stability and correctness.
 - **Comprehensive Examples**: Includes example scripts and data for quick start and advanced usage.
-- **Project Scaffolding CLI**: Instantly scaffold a new plotting project structure using `boviz init <project_name>` from the command line.
+- **Command-Line Project Initialization**: Instantly scaffold a new plotting project with example scripts and data using the CLI (`boviz init <project_name>`).
+- **Residual Analysis**: Easily plot and compare residuals between multiple curves.
+- **Direct Data Plotting**: Support for plotting directly from numpy arrays or lists, not just CSV files.
+- **Particle Heatmap & Schematic**: Visualize initial particle distributions and generate particle-based heatmaps for spatial analysis.
+- **Smart Output Management**: Auto-naming of output files with timestamps and titles, unified output directory.
+- **Global Style & Config**: Easily customize global color palettes, font styles, DPI, and figure sizes for publication-ready output.
 
 ---
 

@@ -196,4 +196,7 @@ Desktop.ini
 !figures/ShowExample/boviz_SineWaveExample.png
 !figures/ShowExample/boviz_ParticleHeatmapExample.png
 
+#
+example/data/test_two_particle_viscos_sintering.e
+
 # End of file

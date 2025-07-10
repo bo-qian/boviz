@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-07-01 15:38:16
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-01 16:40:57
+LastEditTime: 2025-07-10 15:21:59
 FilePath: /boviz/src/boviz/cli.py
 Description: This module provides a command-line interface for boviz, allowing users to initialize a new plotting project with a template.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -17,7 +17,19 @@ from boviz import *
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(base_dir, 'data', 'example.csv')
+# exodus_path = os.path.join(base_dir, "data/test_two_particle_viscos_sintering.e")
 
+#1. 绘制初始粒子分布示意图
+plot_initial_particle_schematic(
+    coordinates=[[90, 90], [150, 90]],
+    radii=[30, 30],
+    domain=[240, 180],
+    title="Initial Particle Distribution",
+    show=False,
+    save=True
+)
+
+# 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
 plot_curves_csv(
     path=[csv_path, csv_path, csv_path, csv_path],
     label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
@@ -28,8 +40,69 @@ plot_curves_csv(
     use_marker=[True, True, False, False],
     legend_ncol=2,
     save=True,
-    show=True
+    show=False
 )
+
+# 3. 单曲线绘图：绘制单条模拟曲线
+plot_curves_csv(
+    path=[csv_path],
+    label=["Sim 800K"],
+    x=[0],
+    y=[3],
+    title_figure="Shrinkage at 800K",
+    save=True,
+    show=False
+)
+
+# 4. 样式演示：展示不同颜色、marker、线型等样式
+plot_curves_csv(
+    path=[csv_path, csv_path],
+    label=["Exp 800K", "Exp 900K"],
+    x=[0, 0],
+    y=[1, 2],
+    xy_label=["Time (s)", "Shrinkage Ratio"],
+    use_marker=[True, True],
+    title_figure="Style Demo",
+    save=True,
+    show=False
+)
+
+# 5. 残差分析图：展示两条曲线的残差
+plot_curves_csv(
+    path=[csv_path, csv_path],
+    label=["Sim 800K", "Sim 900K"],
+    x=[0, 0],
+    y=[3, 4],
+    xy_label=["Time (s)", "Shrinkage Ratio"],
+    title_figure="Residual Analysis",
+    show=False,
+    save=True,
+    show_residual=True
+)
+
+# 6. 直接传入数据进行绘图
+x = np.linspace(0, 4*np.pi, 200)
+y = np.sin(x)
+plot_curves(
+    data=[(x, y)],
+    label=[r"$\sin(x)$"],
+    xy_label=(r"$x$", r"$\sin(x)$"),
+    title_figure="Sine Wave Example",
+    save=True,
+    show=False
+)
+
+# # 7. 绘制热图示例
+# plot_heatmap_exodus2d(
+#     path=exodus_path,
+#     variable="Real_Pressure",
+#     time_step=5,
+#     cmap='jet',
+#     save=True,
+#     show=True,
+#     font_style='sans',
+#     show_ticks=False
+# )
 '''
 
 EXAMPLE_CSV = '''\
