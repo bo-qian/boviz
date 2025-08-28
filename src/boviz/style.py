@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:29:33
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 16:46:15
+LastEditTime: 2025-08-28 20:22:24
 FilePath: /boviz/src/boviz/style.py
 Description: This module provides functions to set default styles for plots in boviz.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -148,7 +148,8 @@ def save_or_display_legend(
     legend_location: str = 'best',
     legend_ncol: int = 1,
     dpi: int = 300,
-    xy_label: list[str, str] = None
+    xy_label: list[str, str] = None,
+    show_legend: bool = True
 ):
     """
     处理图例显示或保存为单独图像的逻辑。
@@ -177,7 +178,7 @@ def save_or_display_legend(
         fig_leg.savefig(legend_path, dpi=dpi, bbox_inches='tight')
         plt.close(fig_leg)
         legend.remove()
-    else:
+    elif show_legend:
         ax.legend(fontsize='small', loc=legend_location or 'best', ncol=legend_ncol or 1)
 
 

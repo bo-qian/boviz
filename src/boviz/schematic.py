@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 17:14:02
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:04:16
+LastEditTime: 2025-08-18 16:36:39
 FilePath: /boviz/src/boviz/schematic.py
 Description: This module provides a function to plot the initial distribution of particles in a schematic format, including their positions and radii.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from boviz.config import set_default_dpi_figsize_savedir
-from boviz.style import set_default_style, set_ax_style, set_sans_style
+from boviz.style import set_default_style, set_ax_style, set_sans_style, set_smart_xy_ticks
 from boviz.utils import generate_plot_filename, save_figure
 
 def plot_initial_particle_schematic(
@@ -65,10 +65,11 @@ def plot_initial_particle_schematic(
     fig, ax = plt.subplots(figsize=set_default_dpi_figsize_savedir()[1], dpi=set_default_dpi_figsize_savedir()[0])
     set_ax_style(ax)
 
-    ax.set_xlim(0, domain[0])
-    ax.set_ylim(0, domain[1])
-    ax.set_xticks(np.arange(0, domain[0] + 1, 30))
-    ax.set_yticks(np.arange(0, domain[1] + 1, 30))
+    set_smart_xy_ticks(ax, extent=(0, domain[0], 0, domain[1]))
+    # ax.set_xlim(0, domain[0])
+    # ax.set_ylim(0, domain[1])
+    # ax.set_xticks(np.arange(0, domain[0] + 1, 30))
+    # ax.set_yticks(np.arange(0, domain[1] + 1, 30))
     ax.set_aspect('equal', 'box')
 
     for i in range(len(coordinates)):

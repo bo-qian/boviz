@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 15:38:39
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-06-29 18:48:29
+LastEditTime: 2025-08-28 20:45:37
 FilePath: /boviz/src/boviz/curves.py
 Description: This module provides functions to plot curves with various styles and options, including support for multiple curves, residual analysis, and custom styling.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -57,7 +57,7 @@ def plot_curves_csv(
     x: list[int],
     y: list[int],
     information: str = None,
-    factor: list[(float, float)] = None,
+    factor: list[tuple[tuple, tuple]] = None,
     time_step: list[int] = None,
     xy_label: tuple[str, str] = None,
     use_marker: list[bool] = None,
@@ -70,6 +70,7 @@ def plot_curves_csv(
     highlight_x: float = None,
     split_legend: bool = False,
     show_residual: bool = False,
+    show_legend: bool = True,
     title_figure: str = None,
     legend_ncol: int = None,
     ylog: bool = False,
@@ -89,7 +90,7 @@ def plot_curves_csv(
         x (List[int]): 每条曲线 X 数据所在列的索引。
         y (List[int]): 每条曲线 Y 数据所在列的索引。
         information (str, optional): 文件名后缀信息，用于区分保存图像。
-        factor (List[float], optional): Y 轴缩放因子，例如用于单位换算。默认均为 1。
+        factor (List[tuple[tuple, tuple]]], optional): x轴和y轴的缩放因子和偏移量，例如用于单位换算。格式为 [((x_scale, x_offset), (y_scale, y_offset)), ...]。默认均为 1 和 0。
         time_step (List[int], optional): 用于截断数据的步数，若为 0 表示不截断。
         xy_label (Tuple[str, str], optional): X 和 Y 轴标签，例如 ("Time (s)", "Stress (MPa)")。
         use_marker (List[bool], optional): 是否为每条曲线使用线+标记风格。
@@ -163,7 +164,7 @@ def plot_curves_csv(
                 source=path[i],
                 x_index=x[i] if isinstance(path[i], str) else None,
                 y_index=y[i] if isinstance(path[i], str) else None,
-                factor=factor[i] if factor else (1.0, 0.0),
+                factor=factor[i] if factor else [(1.0, 0.0), (1.0, 0.0)],
                 time_step=time_step[i]
             )
             curves.append((x_data, y_data))
@@ -182,12 +183,12 @@ def plot_curves_csv(
             source=path[0],
             x_index=x[0] if isinstance(path[0], str) else None,
             y_index=y[0] if isinstance(path[0], str) else None,
-            factor=factor[i] if factor else (1.0, 0.0),
+            factor=factor[i] if factor else [(1.0, 0.0), (1.0, 0.0)],
             time_step=time_step[0]
         )
         curves.append((x_data, y_data))
 
-        color_index = color_group[0] if color_group else 0
+        color_index = color_group[0] if color_group else 10
 
         if use_scatter[0]:
             plot_scatter_style(ax_main, x_data, y_data, label[i], color_index)
@@ -238,7 +239,8 @@ def plot_curves_csv(
         legend_location=legend_location,
         legend_ncol=legend_ncol or 1,
         dpi=dpi,
-        xy_label=xy_label
+        xy_label=xy_label,
+        show_legend=show_legend
     )
 
     if show_residual and len(curves) >= 2:
@@ -265,7 +267,7 @@ def plot_curves(
     data: list[tuple[np.ndarray, np.ndarray]],
     label: list[str],
     information: str = None,
-    factor: list[tuple[float, float]] = None,
+    factor: list[tuple[tuple, tuple]] = [None],
     time_step: list[int] = None,
     xy_label: tuple[str, str] = None,
     use_marker: list[bool] = None,
@@ -277,6 +279,7 @@ def plot_curves(
     ylim: tuple[float, float] = None,
     highlight_x: float = None,
     split_legend: bool = False,
+    show_legend: bool = True,
     show_residual: bool = False,
     title_figure: str = None,
     legend_ncol: int = None,
@@ -295,7 +298,7 @@ def plot_curves(
         data (List[Tuple[np.ndarray, np.ndarray]]): 每条曲线的数据，格式为 [(x_data, y_data), ...]。
         label (List[str]): 每条曲线的图例标签。
         information (str, optional): 文件名后缀信息，用于区分保存图像。
-        factor (List[Tuple[float, float]], optional): Y 轴缩放因子，例如用于单位换算。默认均为 (1.0, 0.0)。
+        factor (List[tuple[tuple, tuple]]], optional): x轴和y轴的缩放因子和偏移量，例如用于单位换算。格式为 [((x_scale, x_offset), (y_scale, y_offset)), ...]。默认均为 1 和 0。
         time_step (List[int], optional): 用于截断数据的步数，若为 0 表示不截断。
         xy_label (Tuple[str, str], optional): X 和 Y 轴标签，例如 ("Time (s)", "Stress (MPa)")。
         use_marker (List[bool], optional): 是否为每条曲线使用线+标记风格。
@@ -307,6 +310,7 @@ def plot_curves(
         ylim (Tuple[float, float], optional): Y 轴显示范围。
         highlight_x (float, optional): 保留接口，尚未启用，用于高亮指定 X 点。
         split_legend (bool, optional): 是否将图例单独绘制成图像保存。
+        show_legend (bool, optional): 是否显示图例，默认显示。
         show_residual (bool, optional): 是否绘制与参考曲线（第 1 条）相比的残差图。
         title_figure (str, optional): 图像标题，也作为保存文件名的前缀。
         legend_ncol (int, optional): 图例列数，默认自动调整。
@@ -361,19 +365,53 @@ def plot_curves(
     time_step = time_step or [0] * len(data)
     use_marker = use_marker or [False] * len(data)
     use_scatter = use_scatter or [False] * len(data)
-    factor = factor or [(1.0, 0.0)] * len(data)
 
+    label_suffix = f"({information})" if information else None
+        
     curves = []
-    for i in range(len(data)):
+    if len(data) > 1:
+        if not xy_label or not xy_label[0] or not xy_label[1]:
+            raise ValueError("When plotting multiple curves, please specify 'xy_label' explicitly.")
+
+        for i in range(len(data)):
+            if factor[i] is None:
+                factor[i] = [(1.0, 0.0), (1.0, 0.0)]
+            x_data, y_data = data[i]
+            x_scale, x_offset = factor[i][0]
+            y_scale, y_offset = factor[i][1]
+            x_data = x_data * x_scale + x_offset
+            y_data = y_data * y_scale + y_offset
+            if time_step[i]:
+                x_data = x_data[:time_step[i]]
+                y_data = y_data[:time_step[i]]
+            curves.append((x_data, y_data))
+
+            color_index = color_group[i] if color_group else i
+
+            if use_scatter[i]:
+                plot_scatter_style(ax_main, x_data, y_data, label[i], color_index)
+            elif use_marker[i]:
+                update_curve_plotting_with_styles(ax_main, x_data, y_data, label[i], color_index)
+            else:
+                ax_main.plot(x_data, y_data, label=label[i], linewidth=3,
+                            color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
+        
+        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight=font_weight)
+    
+    else:
+        i = 0
         x_data, y_data = data[i]
-        scale, offset = factor[i]
+        if factor[i] is None:
+            factor[i] = [(1.0, 0.0), (1.0, 0.0)]
+        x_scale, x_offset = factor[i][0]
+        y_scale, y_offset = factor[i][1]
+        x_data = x_data * x_scale + x_offset
+        y_data = y_data * y_scale + y_offset
         if time_step[i]:
             x_data = x_data[:time_step[i]]
             y_data = y_data[:time_step[i]]
-        y_data = y_data * scale + offset
-        curves.append((x_data, y_data))
-
-        color_index = color_group[i] if color_group else i
+        curves.append((x_data, y_data))     
+        color_index = color_group[i] if color_group else 10
 
         if use_scatter[i]:
             plot_scatter_style(ax_main, x_data, y_data, label[i], color_index)
@@ -381,17 +419,10 @@ def plot_curves(
             update_curve_plotting_with_styles(ax_main, x_data, y_data, label[i], color_index)
         else:
             ax_main.plot(x_data, y_data, label=label[i], linewidth=3,
-                         color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
-
-    label_suffix = f"({information})" if information else None
-
-    if len(data) > 1:
-        if not xy_label or not xy_label[0] or not xy_label[1]:
-            raise ValueError("When plotting multiple curves, please specify 'xy_label' explicitly.")
-        ax_main.set_title(title_figure or f'Comparison of {xy_label[1]}', pad=20, fontweight=font_weight)
-    else:
+                        color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
+        
         if not xy_label:
-            raise ValueError("For single curve, 'xy_label' is required when no column name is provided.")
+            raise ValueError("For single curve, 'xy_label' is required when no column name is provided.")   
         ax_main.set_title(title_figure or f'Curve of {xy_label[1]}', pad=20, fontweight=font_weight)
 
     ax_main.set_xlabel(xy_label[0], fontweight=font_weight)
@@ -427,7 +458,8 @@ def plot_curves(
         legend_location=legend_location,
         legend_ncol=legend_ncol or 1,
         dpi=dpi,
-        xy_label=xy_label
+        xy_label=xy_label,
+        show_legend=show_legend
     )
 
     if show_residual and len(curves) >= 2:

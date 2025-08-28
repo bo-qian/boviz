@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:06:25
+LastEditTime: 2025-08-28 20:06:04
 FilePath: /boviz/src/boviz/utils.py
 Description: This module provides utility functions for boviz, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -56,7 +56,7 @@ def load_data_csv(
     source: str,
     x_index: int,
     y_index: int,
-    factor: tuple,
+    factor: tuple[tuple, tuple],
     time_step: int = 0
 ) -> tuple[np.ndarray, np.ndarray, str, str]:
     """
@@ -66,7 +66,7 @@ def load_data_csv(
         source (str): CSV 文件路径。
         x_index (int): X 轴数据的列索引。
         y_index (int): Y 轴数据的列索引。
-        factor (tuple[float, float]): 用于缩放和平移 Y 轴数据的因子，格式为 [scale, offset]。
+        factor (tuple[touple, touple]): 用于缩放和平移 Y 轴数据的因子，格式为 [scale, offset]。
             - scale: 缩放因子，默认为 1.0。
             - offset: 平移量，默认为 0.0。
         time_step (int): 若不为 0，则只保留前 time_step 个时间步。
@@ -75,16 +75,22 @@ def load_data_csv(
         x_data, y_data: 对应列的数据（NumPy 数组）
         x_colname, y_colname: 对应列名
     """
+
+    if factor is None:
+        factor = [(1.0, 0.0), (1.0, 0.0)]
+
     if not isinstance(source, str) or not source.endswith('.csv'):
         raise ValueError(f"Expected a .csv file path, got {source}")
 
     df = pd.read_csv(source)
-    x_data = df.iloc[:time_step, x_index] if time_step else df.iloc[:, x_index]
+    x_data_raw = df.iloc[:time_step, x_index] if time_step else df.iloc[:, x_index]
     y_data_raw = df.iloc[:time_step, y_index] if time_step else df.iloc[:, y_index]
     x_colname = df.columns[x_index]
     y_colname = df.columns[y_index]
 
-    y_data = y_data_raw * factor[0] + factor[1]
+    print(f"factor: {factor}")
+    x_data = x_data_raw * factor[0][0] + factor[0][1]
+    y_data = y_data_raw * factor[1][0] + factor[1][1]
 
     return x_data.values, y_data.values, x_colname, y_colname
 

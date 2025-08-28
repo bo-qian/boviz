@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 14:36:39
+LastEditTime: 2025-08-28 20:47:08
 FilePath: /boviz/example/example_plot.py
 Description: Test script for boviz, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -24,7 +24,27 @@ plot_initial_particle_schematic(
     domain=[240, 180],
     title="Initial Particle Distribution",
     show=False,
+    # save=True
+)
+
+plot_histogram(
+    x=[10, 20, 40, 60, 80, 100],
+    y=[21871, 10927, 9690, 5977, 4949, 4932],
+    title="Performance Histogram",
+    label="Histogram",
+    xy_label=("Number of Processor", "Runtime (h)"),
+    factor=[1/3600, 0],
+    # show=True,
     save=True
+)
+
+plot_initial_particle_schematic(
+    coordinates=[[25, 25], [55, 25]],
+    radii=[15, 15],
+    domain=[80, 50],
+    title="Initial Particle Distribution",
+    show=False,
+    # save=True
 )
 
 # 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
@@ -37,8 +57,9 @@ plot_curves_csv(
     title_figure="Shrinkage Comparison at Two Temperatures",
     use_marker=[True, True, False, False],
     legend_ncol=2,
-    save=True,
-    show=False
+    factor=[[(1.0, 0.0), (10.0, 0.0)], None, [(1.0, 0.0), (1.0, 0.0)], None],
+    # save=True,
+    # show=True
 )
 
 # 3. 单曲线绘图：绘制单条模拟曲线
@@ -48,8 +69,8 @@ plot_curves_csv(
     x=[0],
     y=[3],
     title_figure="Shrinkage at 800K",
-    save=True,
-    show=False
+    # save=True,
+    # show=True
 )
 
 # 4. 样式演示：展示不同颜色、marker、线型等样式
@@ -61,7 +82,7 @@ plot_curves_csv(
     xy_label=["Time (s)", "Shrinkage Ratio"],
     use_marker=[True, True],
     title_figure="Style Demo",
-    save=True,
+    # save=True,
     show=False
 )
 
@@ -74,7 +95,7 @@ plot_curves_csv(
     xy_label=["Time (s)", "Shrinkage Ratio"],
     title_figure="Residual Analysis",
     show=False,
-    save=True,
+    # save=True,
     show_residual=True
 )
 
@@ -86,8 +107,10 @@ plot_curves(
     label=[r"$\sin(x)$"],
     xy_label=(r"$x$", r"$\sin(x)$"),
     title_figure="Sine Wave Example",
-    save=True,
-    show=False
+    factor=[[(10.0, 0.0), (10.0, 0.0)]],
+    # save=True,
+    show_legend=False,
+    show=True
 )
 
 # 7. 热力图示例：生成初始粒子分布的热力图
@@ -98,6 +121,6 @@ plot_heatmap_particle(
     border=1,
     cmap='coolwarm',
     title_figure="Particle Heatmap Example",
-    save=True,
+    # save=True,
     show=False
 )

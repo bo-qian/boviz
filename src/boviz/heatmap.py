@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:07:41
+LastEditTime: 2025-08-18 14:28:23
 FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
