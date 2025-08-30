@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:19:37
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-08-28 20:47:08
+LastEditTime: 2025-08-30 16:34:30
 FilePath: /boviz/example/example_plot.py
 Description: Test script for boviz, demonstrating how to use the plotting functions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -17,7 +17,8 @@ base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "data/test_plotkit_multifeature_data.csv")
 
 
-#1. 绘制初始粒子分布示意图
+# 1. 绘制初始粒子分布示意图
+# 绘制两个初始粒子的分布示意图
 plot_initial_particle_schematic(
     coordinates=[[90, 90], [150, 90]],
     radii=[30, 30],
@@ -27,6 +28,7 @@ plot_initial_particle_schematic(
     # save=True
 )
 
+# 绘制性能直方图
 plot_histogram(
     x=[10, 20, 40, 60, 80, 100],
     y=[21871, 10927, 9690, 5977, 4949, 4932],
@@ -38,6 +40,7 @@ plot_histogram(
     save=True
 )
 
+# 绘制另一个初始粒子分布示意图
 plot_initial_particle_schematic(
     coordinates=[[25, 25], [55, 25]],
     radii=[15, 15],
@@ -48,6 +51,7 @@ plot_initial_particle_schematic(
 )
 
 # 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
+# 从CSV文件读取多条曲线并绘制对比图
 plot_curves_csv(
     path=[csv_path, csv_path, csv_path, csv_path],
     label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
@@ -63,6 +67,7 @@ plot_curves_csv(
 )
 
 # 3. 单曲线绘图：绘制单条模拟曲线
+# 从CSV文件读取单条曲线并绘制
 plot_curves_csv(
     path=[csv_path],
     label=["Sim 800K"],
@@ -74,6 +79,7 @@ plot_curves_csv(
 )
 
 # 4. 样式演示：展示不同颜色、marker、线型等样式
+# 展示不同实验条件下曲线的样式
 plot_curves_csv(
     path=[csv_path, csv_path],
     label=["Exp 800K", "Exp 900K"],
@@ -87,6 +93,7 @@ plot_curves_csv(
 )
 
 # 5. 残差分析图：展示两条曲线的残差
+# 绘制两条模拟曲线及其残差分析
 plot_curves_csv(
     path=[csv_path, csv_path],
     label=["Sim 800K", "Sim 900K"],
@@ -100,6 +107,7 @@ plot_curves_csv(
 )
 
 # 6. 直接传入数据进行绘图
+# 直接传入numpy数组绘制正弦曲线
 x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
 plot_curves(
@@ -114,6 +122,7 @@ plot_curves(
 )
 
 # 7. 热力图示例：生成初始粒子分布的热力图
+# 绘制初始粒子的热力图分布
 plot_heatmap_particle(
     particle_x_num=2,
     particle_y_num=1,

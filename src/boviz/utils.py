@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-08-28 20:06:04
+LastEditTime: 2025-08-30 16:35:27
 FilePath: /boviz/src/boviz/utils.py
 Description: This module provides utility functions for boviz, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -88,7 +88,6 @@ def load_data_csv(
     x_colname = df.columns[x_index]
     y_colname = df.columns[y_index]
 
-    print(f"factor: {factor}")
     x_data = x_data_raw * factor[0][0] + factor[0][1]
     y_data = y_data_raw * factor[1][0] + factor[1][1]
 
