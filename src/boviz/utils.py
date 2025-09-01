@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-25 16:58:46
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-08-30 16:35:27
+LastEditTime: 2025-09-01 15:39:54
 FilePath: /boviz/src/boviz/utils.py
 Description: This module provides utility functions for boviz, including generating standardized plot filenames.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -263,3 +263,25 @@ def get_math_label(var_name: str) -> str:
         "v": r"$u_y$",
     }
     return mapping.get(var_name, var_name)
+
+
+def _broadcast(param, N):
+    if isinstance(param, (list, tuple, np.ndarray)):
+        if len(param) != N:
+            raise ValueError(f"参数长度应为 {N}，但收到 {len(param)}")
+        return list(param)
+    return [param] * N
+
+def _bbox_cols_from_gridspec(fig, gs, nx, ny):
+    """取前 nx 列（跨 ny 行）的列槽位左右范围（figure 坐标）。"""
+    fig.canvas.draw()
+    # 用第一行的前 nx 列即可得到列左右边界
+    bb_row0 = gs[0, :nx].get_position(fig)
+    return bb_row0.x0, bb_row0.x1
+
+def _bbox_rows_from_axes(fig, axes):
+    """取实际 Axes（不含面板标题那段负偏移文本）的上下范围（figure 坐标）。"""
+    fig.canvas.draw()
+    y0 = min(ax.get_position().y0 for ax in axes)
+    y1 = max(ax.get_position().y1 for ax in axes)
+    return y0, y1

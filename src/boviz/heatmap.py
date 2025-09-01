@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-08-18 14:28:23
+LastEditTime: 2025-09-01 15:42:44
 FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -13,10 +13,13 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
+from matplotlib import gridspec
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
 
 from boviz.style import set_default_style, set_smart_xy_ticks, set_sans_style
 from boviz.config import set_default_dpi_figsize_savedir
-from boviz.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure, load_exodus_data_netcdf
+from boviz.utils import generate_plot_filename, generate_particle_layout, build_tanh_phase_field, save_figure, load_exodus_data_netcdf, _broadcast, _bbox_cols_from_gridspec, _bbox_rows_from_axes
 
 
 def plot_heatmap_particle(
@@ -26,8 +29,8 @@ def plot_heatmap_particle(
     border: float = None,
     cmap: str = 'coolwarm',
     title_figure: str = "Initial Particle Schematic",
-    show: bool = True,
-    save: bool = True,
+    show: bool = False,
+    save: bool = False,
     information: str = None,
     surface_thickness: float = 3.0,
     tanh_offset: float = 0.05,
@@ -127,11 +130,12 @@ def plot_heatmap_particle(
 def plot_heatmap_exodus2d(
     path: str,
     variable: str,
+    colorbar_range: tuple = None,
     time_step: int = 0,
     cmap: str = 'coolwarm',
     title_figure: str = None,
-    show: bool = True,
-    save: bool = True,
+    show: bool = False,
+    save: bool = False,
     information: str = None,
     font_style: str = None,
     font_weight: str = "bold",
@@ -177,7 +181,14 @@ def plot_heatmap_exodus2d(
     x = coordinates[:, 0]
     y = coordinates[:, 1]
 
-    heatmap = ax.tricontourf(x, y, variable_values, cmap=cmap, levels=256, origin='lower')
+    if colorbar_range is None:
+        heatmap = ax.tricontourf(x, y, variable_values, cmap=cmap, levels=256, origin='lower')
+        vmin, vmax = heatmap.get_clim()
+    else:
+        vmin, vmax = colorbar_range
+        levels = np.linspace(vmin, vmax, 256)
+        heatmap = ax.tricontourf(x, y, variable_values, cmap=cmap, levels=levels, origin='lower')
+
     print(f"[INFO] 热图绘制完成。")
 
     if show_ticks:
@@ -197,10 +208,11 @@ def plot_heatmap_exodus2d(
     pad = axes_size.Fraction(0.5, width)
     cax = divider.append_axes("right", size=width, pad=pad)
     cbar = plt.colorbar(heatmap, cax=cax)
-    vmin, vmax = heatmap.get_clim()
+    
     tick_locs = np.linspace(vmin, vmax, 6)
     cbar.set_ticks(tick_locs)
     cbar.set_ticklabels([f"{v:.1f}".replace("-0.0", "0.0") for v in tick_locs])
+
 
     plt.tight_layout()
     filename = generate_plot_filename(title=save_name, suffix=label_suffix)
@@ -210,4 +222,183 @@ def plot_heatmap_exodus2d(
     if show:
         plt.show()
     plt.close()
+    return save_path
+
+
+def plot_heatmap_exodus2d_grid(
+    nx: int,
+    ny: int,
+    paths,
+    variables,
+    time_steps=0,
+    cmap='coolwarm',
+    colorbar_range: tuple | None = None,   # (vmin, vmax)；None 自动
+    titles: list | None = None,            # 每个子图标题；None 用文件内标题
+    suptitle: str | None = None,           # 总标题
+    panel_title_size: int = 20,            # 小图标题字号（更小）
+    suptitle_size: int = 24,               # 总标题字号
+    cbar_width: float = 0.025,     # ← 色条宽度（相对图像坐标）
+    cbar_pad: float = 0.025,      # ← 色条与右侧子图之间的间距
+    information: str | None = None,
+    font_style: str | None = None,
+    font_weight: str = 'bold',
+    show: bool = False,
+    save: bool = False,
+):
+    """
+    绘制 Exodus2D 网格数据的热力图（支持多子图排版）。
+
+    Args:
+        nx : int
+            子图网格的列数（每行的子图数量）。
+        ny : int
+            子图网格的行数（每列的子图数量）。
+        paths : str 或 list
+            Exodus2D NetCDF 文件路径，单个或多个（会自动广播到 nx*ny 个）。
+        variables : str 或 list
+            需要绘制的变量名，单个或多个（会自动广播到 nx*ny 个）。
+        time_steps : int 或 list, 默认 0
+            变量的时间步索引，单个或多个（会自动广播到 nx*ny 个）。
+        cmap : str 或 list, 默认 'coolwarm'
+            色图（colormap），单个或多个（会自动广播到 nx*ny 个）。
+        colorbar_range : tuple(vmin, vmax) 或 None, 默认 None
+            色条的取值范围 (vmin, vmax)。若为 None，则自动根据所有数据计算。
+        titles : list 或 None, 默认 None
+            每个子图的标题。若为 None，则使用文件内自带标题。
+        suptitle : str 或 None, 默认 None
+            总标题，显示在所有子图上方。
+        panel_title_size : int, 默认 20
+            每个子图标题的字体大小。
+        suptitle_size : int, 默认 24
+            总标题的字体大小。
+        cbar_width : float, 默认 0.025
+            色条宽度（相对于整个 figure 的宽度）。
+        cbar_pad : float, 默认 0.025
+            色条与右侧子图之间的间距（相对于整个 figure 的宽度）。
+        information : str 或 None, 默认 None
+            附加信息，会作为文件名后缀。
+        font_style : str 或 None, 默认 None
+            字体风格。'sans' 表示无衬线字体，None 表示默认字体。
+        font_weight : str, 默认 'bold'
+            字体粗细。'bold' 或 'normal'。
+        show : bool, 默认 False
+            是否显示图像（plt.show）。
+        save : bool, 默认 False
+            是否保存图像到文件。
+
+    Returns:
+        save_path : str
+            图像保存路径（若 save=True），否则返回最后一次保存路径。
+    """
+    # 字体与风格
+    if not font_style:
+        if font_weight == 'bold': set_default_style(bold=True)
+        elif font_weight == 'normal': set_default_style(bold=False)
+        else: raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    elif font_style == 'sans':
+        if font_weight == 'bold': set_sans_style(bold=True)
+        elif font_weight == 'normal': set_sans_style(bold=False)
+        else: raise ValueError("Invalid font_weight. Choose 'bold' or 'normal'.")
+    else:
+        raise ValueError("Invalid font_style. Choose 'sans' or None.")
+
+    N = nx * ny
+    paths      = _broadcast(paths, N)
+    variables  = _broadcast(variables, N)
+    time_steps = _broadcast(time_steps, N)
+    cmaps      = _broadcast(cmap, N)
+
+    dpi, figuresize, savedir = set_default_dpi_figsize_savedir()
+
+    fig = plt.figure(figsize=figuresize, dpi=dpi)
+    gs = gridspec.GridSpec(
+        nrows=ny, ncols=nx + 1,
+        width_ratios=[1] * nx + [nx/(22-nx)],   # 右侧留出 colorbar 列
+        height_ratios=[1] * ny,
+        figure=fig
+    )
+
+    # 载入数据，计算全局色标范围
+    recs = []  # (x, y, vals, default_title, save_name)
+    gmin, gmax = np.inf, -np.inf
+    for i in range(N):
+        print(f"\n获取第 {i+1} 张图的数据...")
+        coords, vals, dtitle, sname = load_exodus_data_netcdf(
+            source=paths[i], variable_name=variables[i], time_step=time_steps[i]
+        )
+        x, y = coords[:, 0], coords[:, 1]
+        recs.append((x, y, vals, dtitle, sname))
+        if colorbar_range is None and np.size(vals):
+            vmin_i, vmax_i = np.nanmin(vals), np.nanmax(vals)
+            gmin = min(gmin, vmin_i); gmax = max(gmax, vmax_i)
+
+    if colorbar_range is None:
+        vmin, vmax = gmin, gmax
+    else:
+        vmin, vmax = colorbar_range
+    if not np.isfinite(vmin) or not np.isfinite(vmax):
+        raise ValueError("无法确定 colorbar 范围（数据为空或全为 NaN）。")
+
+    # 统一色标
+    norm = Normalize(vmin=vmin, vmax=vmax)
+    cmap_common = cmaps[0]   # 共享色条需单一 cmap；如需每图不同色表，就不能共享色条
+    sm = ScalarMappable(norm=norm, cmap=cmap_common)
+    sm.set_array([])
+
+    print("\n正在排版...")
+    axes = []
+    for k in range(N):
+        r, c = divmod(k, nx)
+        ax = fig.add_subplot(gs[r, c])
+        x, y, vals, dtitle, sname = recs[k]
+
+        levels = np.linspace(vmin, vmax, 256)
+        m = ax.tricontourf(x, y, vals, levels=levels, cmap=cmaps[k], origin='lower')
+        ax.set_xticks([]); ax.set_yticks([])
+
+        # 小图标题放在图下方居中
+        t = dtitle if titles is None else _broadcast(titles, N)[k]
+        ax.text(0.5, -0.04, t, ha='center', va='top', transform=ax.transAxes,
+                fontsize=panel_title_size, fontweight=font_weight, clip_on=False)
+
+        ax.set_aspect('equal', adjustable='box')
+        axes.append(ax)
+
+    # x 边界：用 GridSpec 列槽位；y 边界：用实际 Axes
+    fig.subplots_adjust(
+        wspace=nx/(22-nx),   # 子图之间的水平间距（默认大约0.2）
+        hspace=ny/(22-ny)    # 子图之间的垂直间距（默认大约0.2）
+    )   
+    left, right = _bbox_cols_from_gridspec(fig, gs, nx, ny)
+    bottom, top = _bbox_rows_from_axes(fig, axes)
+    host = fig.add_axes([left, bottom, right - left, top - bottom], frameon=False)
+    host.set(xticks=[], yticks=[])
+    for sp in host.spines.values():
+        sp.set_visible(False)
+    # 仿单图：用 divider 在右侧追加色条轴
+    pad_fig = cbar_pad   # 右侧留白（占 figure 宽度），可微调
+    w_fig   = cbar_width  # 色条宽度（占 figure 宽度），对应你原 cbar_width
+
+    cax = fig.add_axes([right + pad_fig, bottom, w_fig, top - bottom])
+
+    cbar  = fig.colorbar(sm, cax=cax)
+    ticks = np.linspace(vmin, vmax, 6)
+    cbar.set_ticks(ticks)
+    cbar.set_ticklabels([f"{v:.1f}".replace("-0.0", "0.0") for v in ticks])
+    cbar.outline.set_visible(True)
+
+    # 总标题置顶居中
+    if suptitle:
+        fig.suptitle(suptitle, fontsize=suptitle_size, fontweight=font_weight, y=0.99)
+
+    # 保存/显示
+    label_suffix = f"({information})" if information else None
+    filename = generate_plot_filename(title="Exodus2D_Grid", suffix=label_suffix)
+    save_dir = os.path.join(savedir, "HeatMaps"); os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, filename)
+    if save:
+        save_figure(save_path, dpi=dpi)
+    if show:
+        plt.show()
+    plt.close(fig)
     return save_path
