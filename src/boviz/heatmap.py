@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-09-01 15:42:44
+LastEditTime: 2025-09-01 16:17:36
 FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -388,8 +388,8 @@ def plot_heatmap_exodus2d_grid(
     cbar.outline.set_visible(True)
 
     # 总标题置顶居中
-    if suptitle:
-        fig.suptitle(suptitle, fontsize=suptitle_size, fontweight=font_weight, y=0.99)
+    if suptitle:  
+        host.set_title(suptitle, fontsize=suptitle_size, fontweight=font_weight, pad=20)
 
     # 保存/显示
     label_suffix = f"({information})" if information else None
