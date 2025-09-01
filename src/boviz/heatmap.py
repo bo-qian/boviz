@@ -2,7 +2,7 @@
 Author: bo-qian bqian@shu.edu.cn
 Date: 2025-06-29 13:54:52
 LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-09-01 16:17:36
+LastEditTime: 2025-09-01 17:03:05
 FilePath: /boviz/src/boviz/heatmap.py
 Description: Plotting module for generating heatmaps of particle distributions.
 Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
@@ -330,6 +330,7 @@ def plot_heatmap_exodus2d_grid(
         recs.append((x, y, vals, dtitle, sname))
         if colorbar_range is None and np.size(vals):
             vmin_i, vmax_i = np.nanmin(vals), np.nanmax(vals)
+            print(f"第 {i+1} 张图的色标范围: ({vmin_i}, {vmax_i})")
             gmin = min(gmin, vmin_i); gmax = max(gmax, vmax_i)
 
     if colorbar_range is None:
@@ -385,6 +386,7 @@ def plot_heatmap_exodus2d_grid(
     ticks = np.linspace(vmin, vmax, 6)
     cbar.set_ticks(ticks)
     cbar.set_ticklabels([f"{v:.1f}".replace("-0.0", "0.0") for v in ticks])
+    cbar.ax.tick_params(labelsize=24)
     cbar.outline.set_visible(True)
 
     # 总标题置顶居中
