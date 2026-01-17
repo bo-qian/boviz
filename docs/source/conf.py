@@ -1,46 +1,53 @@
 import os
 import sys
-# 1. 引入自动版本管理工具
-from importlib.metadata import version as get_version
+# 1. 引入自动版本管理工具 (如果没有安装，就用默认值)
+try:
+    from importlib.metadata import version as get_version
+except ImportError:
+    get_version = None
+    
 import sphinx_rtd_theme 
 
 sys.path.insert(0, os.path.abspath('../../src'))
 
 # =============================================================
-#  项目基本信息 (Project Information) - 之前可能缺了这部分
+#  🛑 之前缺失的关键部分 (Project Information)
 # =============================================================
-project = 'boviz'
+project = 'boviz'          # 👈 必须有这一行，左上角才会显示名字
 copyright = '2026, Bo Qian'
 author = 'Bo Qian'
 
-# 动态获取版本号 (配合 pyproject.toml 的设置)
+# =============================================================
+#  动态版本号逻辑 (让左上角显示 v0.3.1 而不是 v1.0.0)
+# =============================================================
 try:
-    release = get_version('boviz')
-    version = release
+    if get_version:
+        release = get_version('boviz')
+        version = release
+    else:
+        release = '1.0.0'
+        version = '1.0.0'
 except Exception:
-    release = 'latest'
-    version = release
+    release = '1.0.0'
+    version = '1.0.0'
 
 # =============================================================
-#  通用配置 (General Configuration)
+#  通用配置
 # =============================================================
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',  # 支持 Google/NumPy 风格注释
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'myst_parser',          # 支持 Markdown
-    'sphinx_rtd_theme',     # 注册主题
+    'myst_parser',
+    'sphinx_rtd_theme',
 ]
 
-# 语言设置
 language = 'zh_CN'
-
-# Napoleon 设置
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 
 # =============================================================
-#  主题设置 (HTML Output)
+#  主题设置
 # =============================================================
 html_theme = 'sphinx_rtd_theme'
 
@@ -48,5 +55,4 @@ html_theme_options = {
     'navigation_depth': 4,
     'collapse_navigation': False,
     'sticky_navigation': True,
-    # 'logo_only': True,  # 如果你有logo图片，可以开启这个
 }
