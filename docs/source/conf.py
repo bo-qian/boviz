@@ -1,33 +1,52 @@
-# boviz/docs/source/conf.py
-
 import os
 import sys
-# 引入主题包 (如果安装了的话，有些版本需要import)
+# 1. 引入自动版本管理工具
+from importlib.metadata import version as get_version
 import sphinx_rtd_theme 
 
 sys.path.insert(0, os.path.abspath('../../src'))
 
+# =============================================================
+#  项目基本信息 (Project Information) - 之前可能缺了这部分
+# =============================================================
+project = 'boviz'
+copyright = '2026, Bo Qian'
+author = 'Bo Qian'
+
+# 动态获取版本号 (配合 pyproject.toml 的设置)
+try:
+    release = get_version('boviz')
+    version = release
+except Exception:
+    release = 'latest'
+    version = release
+
+# =============================================================
+#  通用配置 (General Configuration)
+# =============================================================
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',  # ✅ 支持 Google 风格注释
+    'sphinx.ext.napoleon',  # 支持 Google/NumPy 风格注释
     'sphinx.ext.viewcode',
-    'myst_parser',
-    'sphinx_rtd_theme',     # ✅ 建议把主题也加到扩展里
+    'myst_parser',          # 支持 Markdown
+    'sphinx_rtd_theme',     # 注册主题
 ]
 
-# 确保支持中文
+# 语言设置
 language = 'zh_CN'
+
+# Napoleon 设置
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 
-# -----------------------------------------------------------------------------
-# 主题设置 (Theme Setup) - 这里就是你要的蓝色主题
-# -----------------------------------------------------------------------------
+# =============================================================
+#  主题设置 (HTML Output)
+# =============================================================
 html_theme = 'sphinx_rtd_theme'
 
-# 可选：配置主题的细节（比如左上角的logo，导航栏层级等）
 html_theme_options = {
-    'navigation_depth': 4,           # 导航栏显示的层级深度
-    'collapse_navigation': False,    # 是否折叠导航
-    'sticky_navigation': True,       # 导航栏是否固定
+    'navigation_depth': 4,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    # 'logo_only': True,  # 如果你有logo图片，可以开启这个
 }
