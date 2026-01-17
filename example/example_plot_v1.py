@@ -13,7 +13,7 @@ csv_path = os.path.join(base_dir, "data/test_plotkit_multifeature_data.csv")
 #     radii=[30, 30],
 #     domain=[240, 180],
 #     title="Initial Particle Distribution",
-#     show=False,
+#     show=True,
 #     # save=True
 # )
 
@@ -66,20 +66,23 @@ csv_path = os.path.join(base_dir, "data/test_plotkit_multifeature_data.csv")
 #     # save=True
 # )
 
-# # 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
-# # 从CSV文件读取多条曲线并绘制对比图
+# 2. 多曲线对比：不同实验和模拟条件下的收缩率对比
+# 从CSV文件读取多条曲线并绘制对比图
 plot_curves_csv(
     path=[csv_path, csv_path, csv_path, csv_path],
     label=["Exp 800K", "Exp 900K", "Sim 800K", "Sim 900K"],
     x=[0, 0, 0, 0],
     y=[1, 2, 3, 4],
-    xy_label=["Time (s)", "Shrinkage Ratio"],
+    xy_label=["Time (s)", "Shrinkage Ratio"], # type: ignore
     title_figure="Shrinkage Comparison at Two Temperatures",
     use_marker=[True, True, False, False],
     legend_ncol=2,
     # factor=[[(1.0, 0.0), (10.0, 0.0)], None, [(1.0, 0.0), (1.0, 0.0)], None],
-    # save=True,
-    show=True
+    save=True,
+    # show=True,
+    # font_style='times',
+    # font_style='sans',
+    # font_weight='normal'
 )
 
 # # 3. 单曲线绘图：绘制单条模拟曲线

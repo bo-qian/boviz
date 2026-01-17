@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "boviz"
-version = "0.2.4"
+dynamic = ["version"]
 description = "An advanced and flexible scientific plotting toolkit."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -29,3 +29,6 @@ Repository = "https://github.com/bo-qian/boviz"
 
 [project.scripts]
 boviz = "boviz.cli:main"
+
+[tool.setuptools_scm]
+write_to = "src/boviz/_version.py"

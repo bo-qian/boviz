@@ -1,16 +1,5 @@
-'''
-Author: bo-qian bqian@shu.edu.cn
-Date: 2025-06-25 15:28:18
-LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-08-28 20:25:38
-FilePath: /boviz/src/boviz/config.py
-Description: This module defines global configuration settings for boviz, including default colors, save directory, DPI, and figure size.
-Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
-'''
-
-
-
 import os
+import matplotlib.pyplot as plt
 
 # 全局颜色列表（可自定义扩展）
 GLOBAL_COLORS = [
@@ -20,7 +9,7 @@ GLOBAL_COLORS = [
     '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
 ]
 
-def set_default_dpi_figsize_savedir():
+def set_default_dpi_figsize_savedir(bold: bool = True):
     """
     Set default DPI, figure size, and save directory for plots.
 
@@ -32,9 +21,20 @@ def set_default_dpi_figsize_savedir():
     """
     savedir = os.path.join(os.getcwd(), "figures")
     os.makedirs(savedir, exist_ok=True)
-    default_dpi = 100
-    default_figsize = (12, 9)
+    default_dpi = 300
+    default_figsize = (3.1496, 2.3622)
+    # default_figsize = (3.1496, 3.1496)
+    plt.rcParams.update({
+        'axes.unicode_minus': False, # 配合 mathtext，正确显示负号
+        'axes.titlesize': 10,     # 设置标题字体大小
+        'font.size': 10,          # 设置xy轴标题字体大小
+        'xtick.labelsize': 9,     # 设置x轴数字字体大小
+        'ytick.labelsize': 9,     # 设置y轴数字字体大小
+        'legend.fontsize': 9,     # 设置图例字体大小
+    })
     return default_dpi, default_figsize, savedir
+
+
 
 def set_residual_dpi_figsize_savedir():
     """
@@ -48,6 +48,6 @@ def set_residual_dpi_figsize_savedir():
     """
     savedir = os.path.join(os.getcwd(), "figures")
     os.makedirs(savedir, exist_ok=True)
-    default_dpi = 100
-    default_figsize = (12, 9)
+    default_dpi = 1000
+    default_figsize = (3.5, 2.5)
     return default_dpi, default_figsize, savedir

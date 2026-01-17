@@ -1,14 +1,3 @@
-'''
-Author: bo-qian bqian@shu.edu.cn
-Date: 2025-06-29 13:54:52
-LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-09-01 17:03:05
-FilePath: /boviz/src/boviz/heatmap.py
-Description: Plotting module for generating heatmaps of particle distributions.
-Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
-'''
-
-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -116,7 +105,7 @@ def plot_heatmap_particle(
     cax = divider.append_axes("right", size=width, pad=pad)
     cbar = plt.colorbar(heatmap, cax=cax)
 
-    plt.tight_layout()
+    plt.tight_layout(pad=0.1)
     filename = generate_plot_filename(title=title_figure, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
     if save:
@@ -145,7 +134,18 @@ def plot_heatmap_exodus2d(
     绘制 Exodus 2D 数据的热图。
 
     Args:
-        None
+        path (str): Exodus 2D NetCDF 文件路径。
+        variable (str): 需要绘制的变量名。
+        colorbar_range (tuple, optional): 色条的取值范围 (vmin, vmax)。若为 None，则自动根据数据计算。
+        time_step (int, optional): 变量的时间步索引，默认为 0。
+        cmap (str, optional): 热图使用的颜色映射，默认为 'coolwarm', 可选值包括 'viridis', 'plasma', 'inferno', 'magma', 'cividis' 等。
+        title_figure (str, optional): 图像标题，默认为文件内自带标题。
+        show (bool, optional): 是否显示图像，默认为 False。
+        save (bool, optional): 是否保存图像，默认为 False。
+        information (str, optional): 附加信息，用于生成文件名后缀。
+        font_style (str, optional): 字体样式，默认为 Times。可选值为 'sans' 或 None。
+        font_weight (str, optional): 字体粗细，默认为 None。可选值为 'bold' 或 None。
+        show_ticks (bool, optional): 是否显示坐标轴刻度以及标题，默认为 True。
 
     Returns:
         str: 保存的图像路径。
@@ -214,7 +214,7 @@ def plot_heatmap_exodus2d(
     cbar.set_ticklabels([f"{v:.1f}".replace("-0.0", "0.0") for v in tick_locs])
 
 
-    plt.tight_layout()
+    plt.tight_layout(pad=0.1)
     filename = generate_plot_filename(title=save_name, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
     if save:
@@ -249,46 +249,27 @@ def plot_heatmap_exodus2d_grid(
     绘制 Exodus2D 网格数据的热力图（支持多子图排版）。
 
     Args:
-        nx : int
-            子图网格的列数（每行的子图数量）。
-        ny : int
-            子图网格的行数（每列的子图数量）。
-        paths : str 或 list
-            Exodus2D NetCDF 文件路径，单个或多个（会自动广播到 nx*ny 个）。
-        variables : str 或 list
-            需要绘制的变量名，单个或多个（会自动广播到 nx*ny 个）。
-        time_steps : int 或 list, 默认 0
-            变量的时间步索引，单个或多个（会自动广播到 nx*ny 个）。
-        cmap : str 或 list, 默认 'coolwarm'
-            色图（colormap），单个或多个（会自动广播到 nx*ny 个）。
-        colorbar_range : tuple(vmin, vmax) 或 None, 默认 None
-            色条的取值范围 (vmin, vmax)。若为 None，则自动根据所有数据计算。
-        titles : list 或 None, 默认 None
-            每个子图的标题。若为 None，则使用文件内自带标题。
-        suptitle : str 或 None, 默认 None
-            总标题，显示在所有子图上方。
-        panel_title_size : int, 默认 20
-            每个子图标题的字体大小。
-        suptitle_size : int, 默认 24
-            总标题的字体大小。
-        cbar_width : float, 默认 0.025
-            色条宽度（相对于整个 figure 的宽度）。
-        cbar_pad : float, 默认 0.025
-            色条与右侧子图之间的间距（相对于整个 figure 的宽度）。
-        information : str 或 None, 默认 None
-            附加信息，会作为文件名后缀。
-        font_style : str 或 None, 默认 None
-            字体风格。'sans' 表示无衬线字体，None 表示默认字体。
-        font_weight : str, 默认 'bold'
-            字体粗细。'bold' 或 'normal'。
-        show : bool, 默认 False
-            是否显示图像（plt.show）。
-        save : bool, 默认 False
-            是否保存图像到文件。
+        nx (int): 水平子图数量。
+        ny (int): 垂直子图数量。
+        paths (list[str] | str): Exodus2D NetCDF 文件路径列表或单一路径（会广播）。
+        variables (list[str] | str): 变量名列表或单一变量名（会广播）。
+        time_steps (list[int] | int, optional): 时间步索引列表或单一索引（会广播），默认为 0。
+        cmap (str | list[str], optional): 颜色映射名称或列表，默认为 'coolwarm'（会广播）。
+        colorbar_range (tuple, optional): 色条取值范围 (vmin, vmax)，默认为 None（自动计算）。
+        titles (list[str], optional): 每个子图的标题列表，默认为 None（使用文件内标题）。
+        suptitle (str, optional): 总标题，默认为 None。
+        panel_title_size (int, optional): 小图标题字号，默认为 20。
+        suptitle_size (int, optional): 总标题字号，默认为 24。
+        cbar_width (float, optional): 色条宽度（相对图像坐标），默认为 0.025。
+        cbar_pad (float, optional): 色条与右侧子图间距（相对图像坐标），默认为 0.025。
+        information (str, optional): 附加信息，用于生成文件名后缀。
+        font_style (str, optional): 字体样式，默认为 None。可选值为 'sans' 或 None。
+        font_weight (str, optional): 字体粗细，默认为 'bold'。可选值为 'bold' 或 'normal'.
+        show (bool, optional): 是否显示图像，默认为 False。
+        save (bool, optional): 是否保存图像，默认为 False。
 
     Returns:
-        save_path : str
-            图像保存路径（若 save=True），否则返回最后一次保存路径。
+        str: 保存的图像路径。
     """
     # 字体与风格
     if not font_style:

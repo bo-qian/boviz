@@ -1,15 +1,318 @@
-'''
-Author: bo-qian bqian@shu.edu.cn
-Date: 2025-07-01 15:38:16
-LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-07-10 15:57:53
-FilePath: /boviz/src/boviz/cli.py
-Description: This module provides a command-line interface for boviz, allowing users to initialize a new plotting project with a template.
-Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
-'''
-
 import argparse
+import json
 from pathlib import Path
+
+LAUNCH_CODE = """\
+import os
+import subprocess
+import time
+import webbrowser
+import traceback
+
+# --- CONFIGURATION (配置) ---
+CONDA_ENV_NAME = "boviz-dev"
+JUPYTER_PORT = 8888
+CONDA_BASE_PATH = "/home/qianbo/miniforge"
+# --- END CONFIGURATION (配置结束) ---
+
+def main():
+    print("==================================================")
+    print("        WSL Jupyter Lab Launcher (Python v6)")
+    print("==================================================")
+    
+    WIN_PATH = os.path.dirname(os.path.abspath(__file__))
+    print(f"[1] Windows Project Path: {WIN_PATH}")
+
+    print("[2] Converting to WSL path...")
+
+    # --- FIX v6 (最终修复) ---
+    # 我们放弃使用参数列表，因为 Python 正在破坏反斜杠。
+    # 我们构建一个完整的命令字符串，并使用 "shell=True"。
+    # 这会强制 Python 通过 cmd.exe 来运行此命令，
+    # 就像我们那个能工作的 .bat 脚本一样。
+    
+    wslpath_command = f'wsl.exe wslpath -u "{WIN_PATH}"'
+    
+    result = subprocess.run(
+        wslpath_command,  # <-- 修复1: 传入完整命令字符串
+        shell=True,       # <-- 修复2: 使用 shell=True
+        capture_output=True
+        # check=True 仍然保持移除
+    )
+    
+    # 保持 v3 的健壮的解码逻辑
+    WSL_PATH = result.stdout.decode('utf-8', errors='replace').strip()
+    
+    # 保持 v4 的手动检查
+    if not WSL_PATH.startswith('/mnt/'):
+        print("\\n❌❌❌ CRITICAL ERROR ❌❌❌")
+        print("Failed to convert Windows path to WSL path.")
+        print("wslpath did not return a valid path.")
+        print("\\n--- COMMAND (Diagnostic) ---")
+        print(wslpath_command)
+        print("\\n--- STDOUT (Diagnostic) ---")
+        print(result.stdout.decode('utf-8', errors='replace'))
+        print("\\n--- STDERR (Diagnostic) ---")
+        print(result.stderr.decode('utf-8', errors='replace'))
+        raise ValueError(f"wslpath failed. Got: {WSL_PATH}")
+    # --- END FIX (修复结束) ---
+
+    print(f"    {WSL_PATH}")
+
+    # 3. 准备在 WSL 中运行的完整命令
+    print("[3] Preparing WSL command...")
+    CONDA_SH_PATH = f"{CONDA_BASE_PATH}/etc/profile.d/conda.sh"
+    
+    WSL_COMMAND = (
+        f'source "{CONDA_SH_PATH}" && '
+        f'conda activate "{CONDA_ENV_NAME}" && '
+        f"jupyter lab --no-browser --port={JUPYTER_PORT} "
+        f'--notebook-dir="{WSL_PATH}" --ip=0.0.0.0'
+        f"--ServerApp.token='' --ServerApp.password=''"
+    )
+
+    # 4. 启动 Jupyter 服务器窗口
+    print("[4] Starting Jupyter Server in new window...")
+    server_process = subprocess.Popen(
+        ['cmd.exe', '/k', 'wsl.exe', 'bash', '-l', '-c', WSL_COMMAND],
+        creationflags=subprocess.CREATE_NEW_CONSOLE
+    )
+
+    # 5. 等待服务器初始化
+    print("[5] Waiting 5 seconds for server to start...")
+    time.sleep(5)
+
+    # 6. 打开浏览器
+    print("[6] Opening browser...")
+    BROWSER_URL = f"http://localhost:{JUPYTER_PORT}/lab"
+    webbrowser.open(BROWSER_URL)
+    
+    print("\\n==================================================")
+    print(" SUCCESS! Server is launching.")
+    print(" This launcher window will now close.")
+    print("==================================================")
+    time.sleep(2)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print("\\n❌❌❌ AN ERROR OCCURRED! ❌❌❌")
+        print(f"Error: {e}")
+        print("\\n--- Traceback ---")
+        traceback.print_exc()
+        print("\\nThis window will pause so you can read the error.")
+        os.system("pause")
+"""
+
+JUPYTER_CODE= {
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Boviz 绘图模板\n",
+    "\n",
+    "### 1. 导入库并设置路径"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import numpy as np\n",
+    "from boviz import *\n",
+    "\n",
+    "# 在 Notebook 中，我们使用 os.getcwd() 来获取当前目录\n",
+    "base_dir = os.getcwd()\n",
+    "csv_path = os.path.join(base_dir, 'data', 'example.csv')\n",
+    "# exodus_path = os.path.join(base_dir, \"data/test_two_particle_viscos_sintering.e\")\n",
+    "\n",
+    "print(f\"Base directory: {base_dir}\")\n",
+    "print(f\"CSV path: {csv_path}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 2. 绘制初始粒子分布示意图"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_initial_particle_schematic(\n",
+    "    coordinates=[[90, 90], [150, 90]],\n",
+    "    radii=[30, 30],\n",
+    "    domain=[240, 180],\n",
+    "    title=\"Initial Particle Distribution\",\n",
+    "    show=True, # 修改为 True 以在 notebook 中显示\n",
+    "    save=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 3. 多曲线对比：不同实验和模拟条件下的收缩率对比"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_curves_csv(\n",
+    "    path=[csv_path, csv_path, csv_path, csv_path],\n",
+    "    label=[\"Exp 800K\", \"Exp 900K\", \"Sim 800K\", \"Sim 900K\"],\n",
+    "    x=[0, 0, 0, 0],\n",
+    "    y=[1, 2, 3, 4],\n",
+    "    xy_label=[\"Time (s)\", \"Shrinkage Ratio\"],\n",
+    "    title_figure=\"Shrinkage Comparison at Two Temperatures\",\n",
+    "    use_marker=[True, True, False, False],\n",
+    "    legend_ncol=2,\n",
+    "    save=True,\n",
+    "    show=True # 修改为 True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 4. 单曲线绘图：绘制单条模拟曲线"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_curves_csv(\n",
+    "    path=[csv_path],\n",
+    "    label=[\"Sim 800K\"],\n",
+    "    x=[0],\n",
+    "    y=[3],\n",
+    "    title_figure=\"Shrinkage at 800K\",\n",
+    "    save=True,\n",
+    "    show=True # 修改为 True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 5. 样式演示：展示不同颜色、marker、线型等样式"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_curves_csv(\n",
+    "    path=[csv_path, csv_path],\n",
+    "    label=[\"Exp 800K\", \"Exp 900K\"],\n",
+    "    x=[0, 0],\n",
+    "    y=[1, 2],\n",
+    "    xy_label=[\"Time (s)\", \"Shrinkage Ratio\"],\n",
+    "    use_marker=[True, True],\n",
+    "    title_figure=\"Style Demo\",\n",
+    "    save=True,\n",
+    "    show=True # 修改为 True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 6. 残差分析图：展示两条曲线的残差"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_curves_csv(\n",
+    "    path=[csv_path, csv_path],\n",
+    "    label=[\"Sim 800K\", \"Sim 900K\"],\n",
+    "    x=[0, 0],\n",
+    "    y=[3, 4],\n",
+    "    xy_label=[\"Time (s)\", \"Shrinkage Ratio\"],\n",
+    "    title_figure=\"Residual Analysis\",\n",
+    "    show=True, # 修改为 True\n",
+    "    save=True,\n",
+    "    show_residual=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 7. 绘制热图示例\n",
+    "\n",
+    "*(取消注释以运行)*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# (请记得取消第一个单元格中 exodus_path 的注释)\n",
+    "\n",
+    "# plot_heatmap_exodus2d(\n",
+    "#     path=exodus_path,\n",
+    "#     variable=\"Real_Pressure\",\n",
+    "#     time_step=5,\n",
+    "#     cmap='jet',\n",
+    "#     save=True,\n",
+    "#     show=True,\n",
+    "#     font_style='sans',\n",
+    "#     show_ticks=False\n",
+    "# )"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
 
 TEMPLATE_CODE = '''\
 import os
@@ -86,8 +389,8 @@ x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
 plot_curves(
     data=[(x, y)],
-    label=[r"$\sin(x)$"],
-    xy_label=(r"$x$", r"$\sin(x)$"),
+    label=[r"$\\sin(x)$"],
+    xy_label=(r"$x$", r"$\\sin(x)$"),
     title_figure="Sine Wave Example",
     save=True,
     show=False
@@ -320,10 +623,17 @@ def init_project(project_name: str):
     (project_path / 'data').mkdir(parents=True)
     
     # 写入模板文件
+    (project_path / 'start_jupyter.py').write_text(LAUNCH_CODE, encoding='utf-8')
     (project_path / 'plot.py').write_text(TEMPLATE_CODE, encoding='utf-8')
     (project_path / 'data' / 'example.csv').write_text(EXAMPLE_CSV, encoding='utf-8')
+    try:
+        # <--- 修改 4: 使用 json.dumps 将 *字典* 转换为 *字符串* ---
+        notebook_content = json.dumps(JUPYTER_CODE, indent=1, ensure_ascii=False)
+        (project_path / 'plot.ipynb').write_text(notebook_content, encoding='utf-8')
+    except Exception as e:
+        print(f"❌ 写入 'plot.ipynb' 时出错: {e}")
 
-    print(f"✅ 成功创建绘图项目：{project_name}")
+    print(f"--- 成功创建绘图项目：{project_name} ---")
 
 def main():
     parser = argparse.ArgumentParser(description='boviz CLI 工具')

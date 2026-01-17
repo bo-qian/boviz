@@ -1,14 +1,3 @@
-'''
-Author: bo-qian bqian@shu.edu.cn
-Date: 2025-06-25 16:58:46
-LastEditors: bo-qian bqian@shu.edu.cn
-LastEditTime: 2025-09-01 15:39:54
-FilePath: /boviz/src/boviz/utils.py
-Description: This module provides utility functions for boviz, including generating standardized plot filenames.
-Copyright (c) 2025 by Bo Qian, All Rights Reserved. 
-'''
-
-
 import os
 import numpy as np
 import pandas as pd
@@ -18,7 +7,7 @@ import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 from netCDF4 import chartostring
 
-def generate_plot_filename(title: str, suffix=None) -> str:
+def generate_plot_filename(title: str, file_format='png', suffix=None) -> str:
     """
     生成统一命名格式的图片文件名，格式为：boviz_YYMMDDHHMM_title_suffix.png
 
@@ -31,10 +20,12 @@ def generate_plot_filename(title: str, suffix=None) -> str:
     """
     timestamp = datetime.now().strftime("%y%m%d%H%M")
     title_clean = title.replace(" ", "") if title else "plot"
+    if file_format not in ["png", "jpg", "jpeg", "tiff", "bmp", "pdf", "svg", "eps"]:
+        raise ValueError(f"Unsupported file format: {file_format}. Supported formats are png, jpg, jpeg, tiff, bmp, pdf, svg.")
     if suffix is None:
-        return f"boviz_{timestamp}_{title_clean}.png"
+        return f"boviz_{timestamp}_{title_clean}.{file_format}"
     else:
-        return f"boviz_{timestamp}_{title_clean}{suffix}.png"
+        return f"boviz_{timestamp}_{title_clean}{suffix}.{file_format}"
 
 
 def save_figure(save_path: str, dpi: int = 300, verbose: bool = True):
@@ -47,7 +38,8 @@ def save_figure(save_path: str, dpi: int = 300, verbose: bool = True):
         verbose (bool): 是否打印保存信息，默认 True。
     """
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+    # plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+    plt.savefig(save_path, dpi=dpi)
     if verbose:
         print(f"[SAVE] 图像已保存到: {save_path}\n")
 
@@ -83,8 +75,21 @@ def load_data_csv(
         raise ValueError(f"Expected a .csv file path, got {source}")
 
     df = pd.read_csv(source)
-    x_data_raw = df.iloc[:time_step, x_index] if time_step else df.iloc[:, x_index]
-    y_data_raw = df.iloc[:time_step, y_index] if time_step else df.iloc[:, y_index]
+
+    start_idx = 0
+    end_idx = None
+    if isinstance(time_step, int):
+        if time_step != 0:
+            end_idx = time_step
+    elif isinstance(time_step, (list, tuple)):
+        if len(time_step) >= 1:
+            start_idx = time_step[0]
+        if len(time_step) >= 2:
+            end_idx = time_step[1] if time_step[1] != 0 else None
+
+    x_data_raw = df.iloc[start_idx:end_idx, x_index]
+    y_data_raw = df.iloc[start_idx:end_idx, y_index]
+    
     x_colname = df.columns[x_index]
     y_colname = df.columns[y_index]
 
