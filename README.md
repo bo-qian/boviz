@@ -2,33 +2,28 @@
   <b>English</b> | <a href="README_zh.md"><b>中文</b></a>
 </p>
 
+[![PyPI version](https://img.shields.io/pypi/v/boviz.svg)](https://pypi.org/project/boviz/)
+[![Documentation Status](https://readthedocs.org/projects/boviz/badge/?version=latest)](https://boviz.readthedocs.io/zh-cn/latest/?badge=latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 # boviz
 
-**boviz** is a modular and extensible scientific plotting toolkit designed for researchers, scientists, and engineers. It offers a clean, consistent API for generating high-quality, publication-ready figures—including curve plots, particle schematics, heatmaps, and residual analysis. With minimal dependencies and a focus on usability, boviz streamlines the process of visualizing complex data for both quick exploration and formal presentation.
+`boviz` is an advanced Python toolkit designed for generating publication-quality scientific figures with minimal code. Built on top of Matplotlib, it simplifies the creation of complex plots like multi-curve comparisons, dual-axis charts, heatmaps, and schematic diagrams, all while automatically applying academic styling conventions.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **Modular Design**: Well-organized modules for curves, schematics, styles, utilities, and configuration.
-- **Unified Aesthetics**: Consistent visual themes with predefined colors, markers, and line styles.
-- **Flexible Curve Plotting**: Support for multiple curves, residual comparison, log/scientific scale, truncation, axis customization, and multi-format legends.
-- **Schematic Plotting**: Easily create particle distributions and domain diagrams.
-- **Heatmap Visualization**: Generate particle-based heatmaps for spatial data analysis.
-- **Batch Plotting**: Plot multiple datasets or figures in a single call for efficient workflow.
-- **Smart File Naming**: Auto-generated filenames in the format `boviz_<timestamp>_<title>.png`.
-- **Minimal Dependencies**: Built on top of Matplotlib, NumPy, and Pandas.
-- **Easy Integration**: Can be used as a standalone package or imported into larger Python-based workflows.
-- **Customizable Styles**: Easily adjust plot styles, color palettes, and legend layouts.
-- **Publication-Ready Output**: High-resolution figures suitable for academic papers and presentations.
-- **Test-Driven Development**: Comes with robust test cases to ensure stability and correctness.
-- **Comprehensive Examples**: Includes example scripts and data for quick start and advanced usage.
-- **Command-Line Project Initialization**: Instantly scaffold a new plotting project with example scripts and data using the CLI (`boviz init <project_name>`).
-- **Residual Analysis**: Easily plot and compare residuals between multiple curves.
-- **Direct Data Plotting**: Support for plotting directly from numpy arrays or lists, not just CSV files.
-- **Particle Heatmap & Schematic**: Visualize initial particle distributions and generate particle-based heatmaps for spatial analysis.
-- **Smart Output Management**: Auto-naming of output files with timestamps and titles, unified output directory.
-- **Global Style & Config**: Easily customize global color palettes, font styles, DPI, and figure sizes for publication-ready output.
+* **Publication-Ready Aesthetics**: Automatically applies academic font styles (e.g., Times New Roman) and optimizes tick marks, labels, and legends for high-resolution output.
+* **Streamlined Workflow**:
+    * **CSV to Plot**: The `boviz.curves` module allows you to generate complex comparison plots directly from CSV files with a single function call.
+    * **NumPy Support**: Easily plot data directly from NumPy arrays.
+* **Advanced Plotting Capabilities**:
+    * **Residual Analysis**: Automatically calculate and visualize the difference between experimental and simulation data.
+    * **Dual Y-Axis**: Effortlessly create plots with two different Y-axes.
+    * **Heatmaps & Fields**: Visualize 2D fields (e.g., from finite element analysis) with `boviz.heatmap`.
+    * **Schematics**: Generate academic-style schematic diagrams (e.g., particle distributions) with `boviz.schematic`.
+* **Automated Versioning**: Uses `setuptools_scm` for seamless version management based on Git tags.
 
 ---
 
@@ -56,6 +51,9 @@ pip install .
 
 ## 📖 Usage
 
+For detailed API documentation, tutorials, and more examples, please visit the official documentation:
+👉 https://boviz.readthedocs.io/zh-cn/latest/
+
 You can quickly scaffold a new boviz-based project using the built-in CLI:
 
 ```bash
@@ -79,7 +77,7 @@ After initialization, you can immediately start adding your data and scripts, an
 ## 🚀 Quick Example
 
 ```python
-from boplot import *
+from boviz import *
 
 # Plot initial particle distribution schematic
 plot_initial_particle_schematic(
