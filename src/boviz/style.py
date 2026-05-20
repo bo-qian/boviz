@@ -16,10 +16,9 @@ def set_default_style(bold: bool = True):
         'font.serif': ['Times New Roman'],
         'font.weight': 'bold' if bold else 'normal',
         'font.size': 9,
-        'mathtext.fontset': 'custom',
-        'mathtext.rm': 'Times New Roman',
-        'mathtext.it': 'Times New Roman:italic',
-        'mathtext.bf': 'Times New Roman:bold' if bold else 'Times New Roman',
+        'mathtext.fontset': 'cm',
+        'axes.formatter.use_mathtext': True,
+        'lines.linewidth': 1,
         'axes.unicode_minus': False,
         'legend.fontsize': 6
     })
@@ -249,18 +248,17 @@ def save_or_display_legend(
         legend.remove()
         
     elif show_legend:
-        if legend_ncol > 1:
-            legend = ax.legend(loc=legend_location or 'best', ncol=legend_ncol or 1, frameon=False)
-        else:
-            legend = ax.legend(loc=legend_location or 'best', ncol=legend_ncol or 1, frameon=True)
-        legend.get_frame().set_linewidth(0.5)
-        
-    elif show_legend:
-        if legend_ncol > 1:
-            legend = ax.legend(loc=legend_location or 'best', ncol=legend_ncol or 1, frameon=False)
-        else:
-            legend = ax.legend(loc=legend_location or 'best', ncol=legend_ncol or 1, frameon=True)
-        legend.get_frame().set_linewidth(0.5)
+        # JMPS 期刊推荐：去除圆角(fancybox=False)，使用黑色细实线边框(edgecolor='black')，背景不透明(framealpha=1)，或者完全去掉边框
+        legend = ax.legend(
+            loc=legend_location or 'best', 
+            ncol=legend_ncol or 1, 
+            frameon=True,
+            fancybox=False,          # 去除圆角，变成直角
+            edgecolor='black',       # 黑色边框
+            framealpha=1.0,          # 不透明白底避免线条穿过
+            borderpad=0.4            # 内边距微调
+        )
+        legend.get_frame().set_linewidth(0.75) # 细线更显学术
 
 
 def plot_residual_curves(

@@ -1,12 +1,18 @@
 import os
 import matplotlib.pyplot as plt
 
-# 全局颜色列表（可自定义扩展）
+# 全局颜色列表（可自定义扩展），这里替换为了学术期刊（如JMPS）常用的高对比度/色盲友好深色系配色
 GLOBAL_COLORS = [
+    '#4589C8', # 顶刊 NO.05 蓝 (Non-SMK)
+    '#EE7C7A', # 顶刊 NO.05 红 (SMK)
+    '#008F91', # 顶刊 NO.05 蓝绿 (Non-SMK +abx)
+    '#E67300', # 深橙 (Deep Orange)
+    '#8B5A8C',  # 深紫 (Deep Purple - Morandi Style)
+    '#008080', # 深青 (Teal)
+    '#800000', # 绛紫/褐 (Maroon)
+    '#555555', # 深灰 (Dark Gray)
     'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple',
     'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'black',
-    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
 ]
 
 def set_default_dpi_figsize_savedir(bold: bool = True):

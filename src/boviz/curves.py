@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import math
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import ticker
@@ -13,21 +14,26 @@ from boviz.utils import generate_plot_filename, load_data_csv, save_figure
 # 内部辅助函数 (Helper Functions)
 # -----------------------------------------------------------------------------
 
-def update_curve_plotting_with_styles(ax, x_data, y_data, label, index):
+
+def update_curve_plotting_with_styles(ax, x_data, y_data, label, index, custom_linestyle=None):
     """
     内部函数：使用循环的线型和标记样式绘制曲线。
     用于 use_marker=True 的情况。
     """
     line_styles = ['-', '--', '-.', ':']
-    markers = ['o', 's', 'D', '^', 'v', '*']
+    markers = ['o', 's', '^', 'v', 'D', '*']
     color = GLOBAL_COLORS[index % len(GLOBAL_COLORS)]
+
+    # 强对比叠加重合曲线的最佳实践：实心空心交叉，不使用纯线条
+    ls = custom_linestyle if custom_linestyle else line_styles[index % len(line_styles)]
 
     ax.plot(x_data, y_data,
             label=label,
-            linestyle=line_styles[index % len(line_styles)],
+            linestyle=ls,
             marker=markers[index % len(markers)],
-            markevery=slice(index * 2, None, max(1, len(x_data) // 20)),
-            markersize=2,
+            markevery=slice(index * 2, None, max(1, len(x_data) // 15)),
+            markersize=3.5,
+            markerfacecolor='none',
             linewidth=1,
             color=color,
             alpha=0.9)
@@ -49,6 +55,7 @@ def plot_scatter_style(ax, x_data, y_data, label, index):
                facecolors=color,
                linewidths=1,
                zorder=3)
+
 
 def _apply_font_style(font_style, font_weight):
     """内部函数：统一应用字体设置"""
@@ -76,16 +83,18 @@ def _apply_font_style(font_style, font_weight):
     else:
         raise ValueError("Invalid font_style. Choose 'sans', 'times' or None.")
 
+
 def _finalize_plot(
-    fig, ax_main, ax_res, 
-    save_dir, title_figure, label_suffix, 
+    fig, ax_main, ax_res,
+    save_dir, title_figure, label_suffix,
     xy_label, curves, label,
     xlim, ylim, tick_interval_x, tick_interval_y,
-    sci, ylog, 
+    sci, xlog, ylog,
     legend_location, split_legend, show_legend, legend_ncol, legend_fontsize,
     show_residual,
     font_weight, figure_format,
-    save, show, dpi
+    save, show, dpi,
+    show_grid=False
 ):
     """
     内部核心函数：统一处理图形的后处理（标签、刻度、保存等）。
@@ -101,16 +110,19 @@ def _finalize_plot(
         def __init__(self, order=0, useOffset=True, useMathText=True):
             super().__init__(useOffset=useOffset, useMathText=useMathText)
             self._force_order = order
-        
+
         def _set_order_of_magnitude(self):
             self.orderOfMagnitude = self._force_order
 
     def apply_native_sci(ax, axis, scale):
-        if scale is None: return
+        if scale is None:
+            return
         order = int(np.floor(np.log10(abs(scale)))) if scale != 0 else 0
         formatter = FixedOrderFormatter(order=order, useOffset=True, useMathText=True)
-        if axis == 'x': ax.xaxis.set_major_formatter(formatter)
-        elif axis == 'y': ax.yaxis.set_major_formatter(formatter)
+        if axis == 'x':
+            ax.xaxis.set_major_formatter(formatter)
+        elif axis == 'y':
+            ax.yaxis.set_major_formatter(formatter)
 
     apply_native_sci(ax_main, 'x', sci[0])
     apply_native_sci(ax_main, 'y', sci[1])
@@ -122,17 +134,100 @@ def _finalize_plot(
     )
 
     # 对数坐标
+    # if ylog:
+    #     ax_main.set_yscale('log')
+    #     if ylim:
+    #         if ylim[0] <= 0 or ylim[1] <= 0:
+    #             new_ylim = (max(ylim[0], 1e-6), max(ylim[1], 1e-6))
+    #             ax_main.set_ylim(new_ylim)
+    #             print(f"[Warning] 对数坐标轴 ylim 必须为正数，已自动调整为: {new_ylim}")
+    #         else:
+    #             ax_main.set_ylim(ylim)
+    #     ax_main.yaxis.set_major_formatter(ticker.LogFormatterSciNotation())
+    #     ax_main.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=10))
+    # 对数坐标与自定义间隔逻辑
+    # --- 优化后的 X 轴对数逻辑 ---
+    if xlog:
+        ax_main.set_xscale('log')
+        if xlim:
+            ax_main.set_xlim(xlim)
+
+        # 更加保守的步长选择逻辑
+        if not isinstance(xlog, bool) and isinstance(xlog, (int, float)):
+            step_x = float(xlog)
+        else:
+            x_min, x_max = ax_main.get_xlim()
+            log_span_x = math.log10(x_max) - math.log10(x_min)
+            # 根据跨度自动选择步长，防止重叠
+            if log_span_x < 0.5:
+                step_x = 0.1
+            elif log_span_x < 1.0:
+                step_x = 0.2
+            elif log_span_x < 2.0:
+                step_x = 0.5
+            else:
+                step_x = 1.0  # 跨度大时只显示 10^0, 10^1 等
+
+        tick_subs_x = 10**np.arange(0, 1.0 - 1e-9, step_x)
+        ax_main.xaxis.set_major_locator(ticker.LogLocator(base=10.0, subs=tick_subs_x))
+        ax_main.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: rf'$\mathdefault{{10^{{{np.log10(x):.1f}}}}}$' if x > 0 else ""))
+        # 减少 X 轴的次要刻度（只保留 2 和 5）
+        ax_main.xaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=(2.0, 3.0, 4.0, 6.0, 8.0)))
+        ax_main.xaxis.set_minor_formatter(ticker.NullFormatter())
+        # 减少 X 轴的次要刻度（只保留 2 和 5）
+        ax_main.xaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=(2.0, 3.0, 4.0, 6.0, 8.0)))
+        ax_main.xaxis.set_minor_formatter(ticker.NullFormatter())
+
+    # --- 优化后的 Y 轴对数逻辑 ---
     if ylog:
         ax_main.set_yscale('log')
         if ylim:
-            if ylim[0] <= 0 or ylim[1] <= 0:
-                new_ylim = (max(ylim[0], 1e-6), max(ylim[1], 1e-6))
-                ax_main.set_ylim(new_ylim)
-                print(f"[Warning] 对数坐标轴 ylim 必须为正数，已自动调整为: {new_ylim}")
-            else:
-                ax_main.set_ylim(ylim)
-        ax_main.yaxis.set_major_formatter(ticker.LogFormatterSciNotation())
-        ax_main.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=10))
+            ax_main.set_ylim(ylim)
+
+        # --- 核心修复开始 ---
+        # 1. 强制关闭线性偏移和科学计数法干预，防止出现 2e101 这种乱码
+        ax_main.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False, useMathText=False))
+        # --- 核心修复结束 ---
+
+        # 重新设定步长逻辑
+        if not isinstance(ylog, bool) and isinstance(ylog, (int, float)):
+            step = float(ylog)
+        else:
+            y_min, y_max = ax_main.get_ylim()
+            log_span = math.log10(y_max) - math.log10(y_min)
+            step = 0.2 if log_span < 1.0 else 0.5
+
+        # 强制使用 LogLocator，且不允许它自动添加次要刻度标签
+        tick_subs = 10**np.arange(0, 1.0 - 1e-9, step)
+        ax_main.yaxis.set_major_locator(ticker.LogLocator(base=10.0, subs=tick_subs, numticks=10))
+
+        # 使用我们自定义的纯净 LaTeX 格式化器
+        def pure_log_formatter(x, pos):
+            if x <= 0:
+                return ""
+            val = np.log10(x)
+            # 只返回 10^x 这种格式，绝不返回 2e101
+            return rf'$\mathdefault{{10^{{{val:.1f}}}}}$' if abs(val - round(val)) > 1e-6 else rf'$\mathdefault{{10^{{{int(round(val))}}}}}$'
+
+        ax_main.yaxis.set_major_formatter(ticker.FuncFormatter(pure_log_formatter))
+        # 彻底禁用次要刻度的标签显示
+        ax_main.yaxis.set_minor_formatter(ticker.NullFormatter())
+        # 减少次要刻度（副刻度）的数量，避免密密麻麻（只标出中间的 2 和 5）
+        ax_main.yaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=(2.0, 3.0, 4.0, 6.0, 8.0)))
+
+    # 网格线绘制
+    if show_grid:
+        if ylog:
+            ax_main.grid(True, which='major', axis='y', linestyle='--', alpha=0.5, color='gray')
+        if not ylog:
+            ax_main.grid(True, which='major', axis='both', linestyle='--', alpha=0.5, color='gray')
+
+    # 网格线绘制
+    if show_grid:
+        if ylog:
+            ax_main.grid(True, which='major', axis='y', linestyle='--', alpha=0.5, color='gray')
+        if not ylog:
+            ax_main.grid(True, which='major', axis='both', linestyle='--', alpha=0.5, color='gray')
 
     # 图例字体
     if legend_fontsize is not None:
@@ -152,12 +247,12 @@ def _finalize_plot(
             ax_res=ax_res, curves=curves, label=label,
             xy_label=xy_label, x_title_fallback=xy_label[0]
         )
-    
+
     # 布局与保存
-    plt.tight_layout(pad=0.1) 
+    plt.tight_layout(pad=0.8)
     filename = generate_plot_filename(title=title_figure, file_format=figure_format, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
-    
+
     if save:
         save_figure(save_path, dpi=dpi)
     if show:
@@ -168,6 +263,7 @@ def _finalize_plot(
 # -----------------------------------------------------------------------------
 # 公开绘图接口 (Public APIs)
 # -----------------------------------------------------------------------------
+
 
 def plot_curves_csv(
     path: list[str],
@@ -194,7 +290,8 @@ def plot_curves_csv(
     title_figure: str = None,
     legend_ncol: int = None,
     legend_fontsize: int | float | str = None,
-    ylog: bool = False,
+    xlog: bool | float = False,
+    ylog: bool | float = False,
     sci: tuple[float, float] = [None, None],
     color_group: list[int] = None,
     show: bool = False,
@@ -202,6 +299,7 @@ def plot_curves_csv(
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
+    show_grid: bool = False,
 ) -> str:
     """
     从 CSV 文件读取数据并绘制科学曲线。支持多曲线对比、样式定制及残差分析。
@@ -233,6 +331,7 @@ def plot_curves_csv(
         show_title (bool, optional): 是否显示标题。默认为 True。
         title_figure (str, optional): 图像标题，同时用于文件命名。
         legend_ncol (int, optional): 图例列数。
+        xlog (bool, optional): X 轴是否使用对数坐标。
         ylog (bool, optional): Y 轴是否使用对数坐标。
         sci (tuple[float, float], optional): 科学计数法缩放因子 [x_scale, y_scale]。
         color_group (list[int], optional): 指定颜色分组索引，强制多条曲线使用相同颜色。
@@ -245,7 +344,7 @@ def plot_curves_csv(
     Returns:
         str: 保存的图像文件路径。
     """
-    
+
     # 1. 字体设置
     _apply_font_style(font_style, font_weight)
 
@@ -263,7 +362,8 @@ def plot_curves_csv(
     # 3. 样式初始化
     for ax in [ax_main] + ([ax_res] if ax_res is not None else []):
         set_ax_style(ax)
-        ax.tick_params(axis='both', length=2, direction='in', width=0.75, which='both', pad=4)
+        ax.tick_params(axis='both', which='major', length=2.2, direction='in', width=0.75, pad=4)
+        ax.tick_params(axis='both', which='minor', length=1.5, direction='in', width=0.75)
 
     # 4. 默认参数填充
     time_step = time_step or [0] * len(path)
@@ -273,8 +373,8 @@ def plot_curves_csv(
     factor = factor or [[(1.0, 0.0), (1.0, 0.0)] for _ in range(len(path))]
 
     # 5. 数据读取与绘制循环
-    curves = [] # 用于存储绘制后的数据 (x, y)，供范围计算和残差使用
-    
+    curves = []  # 用于存储绘制后的数据 (x, y)，供范围计算和残差使用
+
     # 单曲线/多曲线逻辑统一处理
     # 如果只有一条曲线且未提供 xy_label，尝试从 CSV 读取列名
     need_auto_label = (len(path) == 1 and not xy_label)
@@ -292,11 +392,11 @@ def plot_curves_csv(
             time_step=time_step[i]
         )
         curves.append((x_d, y_d))
-        
+
         # 自动标签处理
         if need_auto_label:
             if not x_colname or not y_colname:
-                 raise ValueError("CSV data missing column names. Please specify 'xy_label'.")
+                raise ValueError("CSV data missing column names. Please specify 'xy_label'.")
             xy_label = [x_colname, y_colname]
 
         # 颜色索引
@@ -306,10 +406,10 @@ def plot_curves_csv(
         if use_scatter[i]:
             plot_scatter_style(ax_main, x_d, y_d, label[i], color_index)
         elif use_marker[i]:
-            update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_index)
+            update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_index, line_style[i])
         else:
             ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
-                         linestyle=line_style[i], 
+                         linestyle=line_style[i],
                          color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
 
     if not xy_label:
@@ -317,15 +417,15 @@ def plot_curves_csv(
 
     # 6. 调用统一的后处理函数
     label_suffix = f"({information})" if information else None
-    
+
     return _finalize_plot(
         fig, ax_main, ax_res, save_dir, title_figure, label_suffix,
         xy_label, curves, label,
         xlim, ylim, tick_interval_x, tick_interval_y,
-        sci, ylog,
+        sci, xlog, ylog,
         legend_location, split_legend, show_legend, legend_ncol, legend_fontsize,
         show_residual, font_weight, figure_format,
-        save, show, dpi
+        save, show, dpi, show_grid=show_grid
     )
 
 
@@ -351,7 +451,9 @@ def plot_curves(
     show_title: bool = True,
     title_figure: str = None,
     legend_ncol: int = None,
-    ylog: bool = False,
+    legend_fontsize: int | float | str = None,
+    xlog: bool | float = False,
+    ylog: bool | float = False,
     sci: tuple[float, float] = (None, None),
     color_group: list[int] = None,
     show: bool = False,
@@ -359,11 +461,12 @@ def plot_curves(
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
+    show_grid: bool = False,
 ) -> str:
     """
     直接绘制内存中的数据（NumPy 数组）。参数含义同 plot_curves_csv。
     """
-    
+
     # 1. 字体
     _apply_font_style(font_style, font_weight)
 
@@ -381,7 +484,8 @@ def plot_curves(
     # 3. 样式
     for ax in [ax_main] + ([ax_res] if ax_res is not None else []):
         set_ax_style(ax)
-        ax.tick_params(axis='both', length=2, direction='in', width=0.75, which='both', pad=4)
+        ax.tick_params(axis='both', which='major', length=2.2, direction='in', width=0.75, pad=4)
+        ax.tick_params(axis='both', which='minor', length=1.5, direction='in', width=0.75)
 
     # 4. 默认值
     time_step = time_step or [0] * len(data)
@@ -393,7 +497,7 @@ def plot_curves(
     # 5. 绘制循环
     curves = []
     if not xy_label:
-         raise ValueError("For plot_curves, 'xy_label' is required.")
+        raise ValueError("For plot_curves, 'xy_label' is required.")
 
     if show_title:
         default_title = f'Comparison of {xy_label[1]}' if len(data) > 1 else f'Curve of {xy_label[1]}'
@@ -401,16 +505,18 @@ def plot_curves(
 
     for i in range(len(data)):
         x_data, y_data = data[i]
-        
+
         # 截断处理
         current_ts = time_step[i]
         start_idx, end_idx = 0, None
         if isinstance(current_ts, int) and current_ts != 0:
             end_idx = current_ts
         elif isinstance(current_ts, (list, tuple)):
-            if len(current_ts) >= 1: start_idx = current_ts[0]
-            if len(current_ts) >= 2: end_idx = current_ts[1] if current_ts[1] != 0 else None
-        
+            if len(current_ts) >= 1:
+                start_idx = current_ts[0]
+            if len(current_ts) >= 2:
+                end_idx = current_ts[1] if current_ts[1] != 0 else None
+
         if start_idx != 0 or end_idx is not None:
             x_data = x_data[start_idx:end_idx]
             y_data = y_data[start_idx:end_idx]
@@ -430,10 +536,10 @@ def plot_curves(
         if use_scatter[i]:
             plot_scatter_style(ax_main, x_data, y_data, label[i], color_index)
         elif use_marker[i]:
-            update_curve_plotting_with_styles(ax_main, x_data, y_data, label[i], color_index)
+            update_curve_plotting_with_styles(ax_main, x_data, y_data, label[i], color_index, line_style[i])
         else:
             ax_main.plot(x_data, y_data, label=label[i], linewidth=1, linestyle=line_style[i],
-                        color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
+                         color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
 
     # 6. 后处理
     label_suffix = f"({information})" if information else None
@@ -442,10 +548,10 @@ def plot_curves(
         fig, ax_main, ax_res, save_dir, title_figure, label_suffix,
         xy_label, curves, label,
         xlim, ylim, tick_interval_x, tick_interval_y,
-        sci, ylog,
-        legend_location, split_legend, show_legend, legend_ncol, None,
+        sci, xlog, ylog,
+        legend_location, split_legend, show_legend, legend_ncol, legend_fontsize,
         show_residual, font_weight, figure_format,
-        save, show, dpi
+        save, show, dpi, show_grid=show_grid
     )
 
 
@@ -483,12 +589,12 @@ def plot_dual_curves_csv(
     show_title: bool = True,
     title_figure: str = None,
     legend_ncol: int = None,
-    
+
     # --- 科学计数法设置 [X轴, 左Y轴, 右Y轴] ---
     auto_sci: bool = True,
     sci: list[float] = [None, None, None],
     # ----------------------------------------
-    
+
     color_group: list[int] = None,
     color_group_right: list[int] = None,
     show: bool = False,
@@ -496,6 +602,7 @@ def plot_dual_curves_csv(
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
+    show_grid: bool = False,
 ) -> str:
     """
     双轴绘图（风格统一版）：线宽为1，实线，完美复刻 plot_curves_csv 风格。
@@ -520,13 +627,14 @@ def plot_dual_curves_csv(
     dpi, figuresize, savedir = set_default_dpi_figsize_savedir()
     fig, ax_main = plt.subplots(figsize=figuresize, dpi=dpi)
     ax_right = ax_main.twinx()
-    
+
     save_dir = os.path.join(savedir, "Curves")
 
     # 样式基础设置
     for ax in [ax_main, ax_right]:
         set_ax_style(ax)
-        ax.tick_params(axis='both', length=2, direction='in', width=0.75, which='both', pad=4)
+        ax.tick_params(axis='both', which='major', length=2.2, direction='in', width=0.75, pad=4)
+        ax.tick_params(axis='both', which='minor', length=1.5, direction='in', width=0.75)
 
     # ... (数据加载逻辑保持不变) ...
     time_step = time_step or [0] * len(path)
@@ -537,42 +645,49 @@ def plot_dual_curves_csv(
     use_scatter_right = use_scatter_right or [False] * len(path_right)
 
     curves_left = []
-    if not xy_label: raise ValueError("需要 xy_label")
+    if not xy_label:
+        raise ValueError("需要 xy_label")
     for i in range(len(path)):
-        x_d, y_d, _, _ = load_data_csv(path[i], x[i], y[i], factor[i] if factor else [(1,0),(1,0)], time_step[i])
+        x_d, y_d, _, _ = load_data_csv(path[i], x[i], y[i], factor[i] if factor else [(1, 0), (1, 0)], time_step[i])
         curves_left.append((x_d, y_d))
         color_idx = color_group[i] if color_group else i
-        if use_scatter[i]: plot_scatter_style(ax_main, x_d, y_d, label[i], color_idx)
-        elif use_marker[i]: update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_idx)
-        else: 
+        if use_scatter[i]:
+            plot_scatter_style(ax_main, x_d, y_d, label[i], color_idx)
+        elif use_marker[i]:
+            update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_idx, line_style[i])
+        else:
             # 【修改】显式指定 linewidth=1
-            ax_main.plot(x_d, y_d, label=label[i], linewidth=1, 
-                         color=GLOBAL_COLORS[color_idx%len(GLOBAL_COLORS)])
+            ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
+                         color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
 
     curves_right = []
     color_offset = len(path) if not color_group_right else 0
     for i in range(len(path_right)):
-        x_d, y_d, _, _ = load_data_csv(path_right[i], x_right[i], y_right[i], factor_right[i] if factor_right else [(1,0),(1,0)], time_step_right[i])
+        x_d, y_d, _, _ = load_data_csv(path_right[i], x_right[i], y_right[i], factor_right[i] if factor_right else [(1, 0), (1, 0)], time_step_right[i])
         curves_right.append((x_d, y_d))
-        color_idx = color_group_right[i] if color_group_right else (i+color_offset)
-        if use_scatter_right[i]: plot_scatter_style(ax_right, x_d, y_d, label_right[i], color_idx)
-        elif use_marker_right[i]: update_curve_plotting_with_styles(ax_right, x_d, y_d, label_right[i], color_idx)
-        else: 
+        color_idx = color_group_right[i] if color_group_right else (i + color_offset)
+        if use_scatter_right[i]:
+            plot_scatter_style(ax_right, x_d, y_d, label_right[i], color_idx)
+        elif use_marker_right[i]:
+            update_curve_plotting_with_styles(ax_right, x_d, y_d, label_right[i], color_idx, line_style_right[i])
+        else:
             # 【修改】显式指定 linewidth=1，去除 linestyle='--'
-            ax_right.plot(x_d, y_d, label=label_right[i], linewidth=1, 
-                          color=GLOBAL_COLORS[color_idx%len(GLOBAL_COLORS)])
+            ax_right.plot(x_d, y_d, label=label_right[i], linewidth=1,
+                          color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
 
     # =========================================================================
     # 科学计数法参数解析 & Formatter (之前讨论的完美方案)
     # =========================================================================
     sci_list = list(sci) if sci else []
-    while len(sci_list) < 3: sci_list.append(None)
+    while len(sci_list) < 3:
+        sci_list.append(None)
     scale_x, scale_y_left, scale_y_right = sci_list[0], sci_list[1], sci_list[2]
 
     class FixedOrderFormatter(ticker.ScalarFormatter):
         def __init__(self, order=0, useOffset=True, useMathText=True):
             super().__init__(useOffset=useOffset, useMathText=useMathText)
             self._force_order = order
+
         def _set_order_of_magnitude(self):
             self.orderOfMagnitude = self._force_order
 
@@ -595,10 +710,10 @@ def plot_dual_curves_csv(
     if show_title:
         ax_main.set_title(title_figure or f'Comparison', pad=10, fontweight=font_weight)
     ax_main.set_xlabel(xy_label[0], fontweight=font_weight, labelpad=2)
-    
-    c_left = GLOBAL_COLORS[color_group[0]%len(GLOBAL_COLORS)] if color_group else GLOBAL_COLORS[0]
+
+    c_left = GLOBAL_COLORS[color_group[0] % len(GLOBAL_COLORS)] if color_group else GLOBAL_COLORS[0]
     idx_right = color_group_right[0] if color_group_right else (0 + color_offset)
-    c_right = GLOBAL_COLORS[idx_right%len(GLOBAL_COLORS)]
+    c_right = GLOBAL_COLORS[idx_right % len(GLOBAL_COLORS)]
 
     label_color_left = c_left if match_axis_color else 'black'
     label_color_right = c_right if match_axis_color else 'black'
@@ -610,14 +725,14 @@ def plot_dual_curves_csv(
         ax_main.tick_params(axis='y', colors=c_left, which='both')
         ax_main.yaxis.get_offset_text().set_color(c_left)
         ax_main.spines['left'].set_color(c_left)
-        ax_main.spines['left'].set_linewidth(0.75) 
-        ax_main.spines['right'].set_visible(False) 
+        ax_main.spines['left'].set_linewidth(0.75)
+        ax_main.spines['right'].set_visible(False)
 
         ax_right.tick_params(axis='y', colors=c_right, which='both')
         ax_right.yaxis.get_offset_text().set_color(c_right)
         ax_right.spines['right'].set_color(c_right)
         ax_right.spines['right'].set_linewidth(0.75)
-        ax_right.spines['left'].set_visible(False) 
+        ax_right.spines['left'].set_visible(False)
 
     if add_axis_arrow:
         ax_main.plot(0, 1, "^", transform=ax_main.transAxes, color=label_color_left, clip_on=False, markersize=4, zorder=10)
@@ -625,14 +740,15 @@ def plot_dual_curves_csv(
         ax_main.plot(1, 0, ">", transform=ax_main.transAxes, color='black', clip_on=False, markersize=4, zorder=10)
 
     apply_axis_limits_and_ticks(ax_main, curves_left, xlim, ylim, tick_interval_x, tick_interval_y)
-    
+
     if tick_interval_y_right:
         y_min = min(min(c[1]) for c in curves_right)
         y_max = max(max(c[1]) for c in curves_right)
         start = ylim_right[0] if ylim_right else y_min
         end = ylim_right[1] if ylim_right else y_max
         ax_right.set_yticks(np.arange(start, end + 0.1 * tick_interval_y_right, tick_interval_y_right))
-    if ylim_right: ax_right.set_ylim(*ylim_right)
+    if ylim_right:
+        ax_right.set_ylim(*ylim_right)
 
     h1, l1 = ax_main.get_legend_handles_labels()
     h2, l2 = ax_right.get_legend_handles_labels()
@@ -648,13 +764,13 @@ def plot_dual_curves_csv(
     elif show_legend:
         ax_main.legend(h1 + h2, l1 + l2, loc=legend_location or 'best', ncol=legend_ncol or 1, frameon=True).get_frame().set_linewidth(0.5)
 
-    plt.tight_layout(pad=0.1)
+    plt.tight_layout(pad=0.8)
     filename = generate_plot_filename(title=title_figure, file_format=figure_format, suffix=label_suffix)
     save_path = os.path.join(save_dir, filename)
     if save:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         # 【关键】这里直接调用 savefig 并开启 bbox_inches='tight'
-        plt.savefig(save_path, dpi=dpi, bbox_inches='tight', pad_inches=0.1)
+        plt.savefig(save_path, dpi=dpi, bbox_inches='tight', pad_inches=0.5)
         print(f"[SAVE] 图像已保存到: {save_path}\n")
     if show:
         plt.show()

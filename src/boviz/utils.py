@@ -7,25 +7,26 @@ import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 from netCDF4 import chartostring
 
-def generate_plot_filename(title: str, file_format='png', suffix=None) -> str:
+
+def generate_plot_filename(title: str, file_format='png', suffix=None, use_date=False) -> str:
     """
-    生成统一命名格式的图片文件名，格式为：boviz_YYMMDDHHMM_title_suffix.png
+    生成统一命名格式的图片文件名。
 
     Args:
         title (str): 图像标题或描述性名称（可含空格，会被自动替换为下划线）。
         suffix (str, optional): 附加信息（如 "(test)"），默认空字符串。
+        use_date (bool, optional): 是否在文件名中包含时间戳，默认为 False。
 
     Returns:
         str: 构造后的图片文件名（不含路径）。
     """
-    timestamp = datetime.now().strftime("%y%m%d%H%M")
+    timestamp = datetime.now().strftime("%y%m%d%H%M") + "_" if use_date else ""
     title_clean = title.replace(" ", "") if title else "plot"
     if file_format not in ["png", "jpg", "jpeg", "tiff", "bmp", "pdf", "svg", "eps"]:
         raise ValueError(f"Unsupported file format: {file_format}. Supported formats are png, jpg, jpeg, tiff, bmp, pdf, svg.")
-    if suffix is None:
-        return f"boviz_{timestamp}_{title_clean}.{file_format}"
-    else:
-        return f"boviz_{timestamp}_{title_clean}{suffix}.{file_format}"
+    
+    suffix_str = suffix if suffix else ""
+    return f"boviz_{timestamp}{title_clean}{suffix_str}.{file_format}"
 
 
 def save_figure(save_path: str, dpi: int = 300, verbose: bool = True):
@@ -89,7 +90,7 @@ def load_data_csv(
 
     x_data_raw = df.iloc[start_idx:end_idx, x_index]
     y_data_raw = df.iloc[start_idx:end_idx, y_index]
-    
+
     x_colname = df.columns[x_index]
     y_colname = df.columns[y_index]
 
@@ -98,12 +99,13 @@ def load_data_csv(
 
     return x_data.values, y_data.values, x_colname, y_colname
 
+
 def generate_particle_layout(
-        num_x: int, 
-        num_y: int,
-        radius: float,
-        border: float = None,
-    ) -> np.ndarray:
+    num_x: int,
+    num_y: int,
+    radius: float,
+    border: float = None,
+) -> np.ndarray:
     """
     生成粒子布局的网格坐标。
 
@@ -124,7 +126,7 @@ def generate_particle_layout(
     border = border * radius
     domain_x = 2 * radius * num_x + border * 2
     domain_y = 2 * radius * num_y + border * 2
-    
+
     radii = [radius] * (num_x * num_y)
     centers_coordinate = []
     for j in range(num_y):
@@ -132,17 +134,18 @@ def generate_particle_layout(
             x_coordinate = int(domain_x / 2 + (i + (1 - num_x) / 2) * radius * 2)
             y_coordinate = int(domain_y / 2 + (j + (1 - num_y) / 2) * radius * 2)
             centers_coordinate.append([x_coordinate, y_coordinate])
-    
+
     domain_size = [domain_x, domain_y]
     return centers_coordinate, radii, domain_size
 
+
 def build_tanh_phase_field(
-        centers_coordinate: list,
-        radii: list,
-        domain_size: list,
-        tanh_width: float = 3.0,
-        tanh_offset: float = 0.05
-    ) -> np.ndarray:
+    centers_coordinate: list,
+    radii: list,
+    domain_size: list,
+    tanh_width: float = 3.0,
+    tanh_offset: float = 0.05
+) -> np.ndarray:
     """
     构建基于双曲正切函数的相场。
 
@@ -158,11 +161,11 @@ def build_tanh_phase_field(
     """
     domain_x, domain_y = domain_size
     phase_field = 0
-    x, y = np.meshgrid(np.arange(0, domain_x+0.1, 0.1), np.arange(0, domain_y+0.1, 0.1))
+    x, y = np.meshgrid(np.arange(0, domain_x + 0.1, 0.1), np.arange(0, domain_y + 0.1, 0.1))
     for center, radius in zip(centers_coordinate, radii):
         distance = np.sqrt((x - center[0])**2 + (y - center[1])**2)
         phase_field += 0.5 * (1 - np.tanh((distance - radius) * (2 * np.arctanh(1 - 2 * tanh_offset)) / tanh_width))
-    
+
     return phase_field
 
 
@@ -173,7 +176,7 @@ def load_exodus_data(
 ):
     """
     读取 Exodus 文件中的指定变量的指定时间步数据。
-    
+
     args:
         source (str): Exodus 文件路径。
         variable_name (str): 要读取的变量名称。
@@ -193,15 +196,13 @@ def load_exodus_data(
     mesh = meshio.read(source, time_step=time_step)
     coordinates = mesh.points
 
-
-
     try:
         variable_values = mesh.point_data[variable_name]
         if variable_values.ndim == 2:
             variable_values = variable_values[time_step]
     except KeyError:
         raise ValueError(f"Variable '{variable_name}' not found in the Exodus file.")
-    
+
     return coordinates, variable_values
 
 
@@ -239,7 +240,7 @@ def load_exodus_data_netcdf(source, variable_name, time_step=0):
         print(f"[INFO] 正在绘制热图...请稍候...")
         idx = var_names.index(variable_name) + 1
         variable_values = f.variables[f"vals_nod_var{idx}"][time_step, :]
-    
+
     # 自动生成图标题
     math_label = get_math_label(variable_name)
     title = f"{math_label} at {t:.4g}s"
@@ -277,12 +278,14 @@ def _broadcast(param, N):
         return list(param)
     return [param] * N
 
+
 def _bbox_cols_from_gridspec(fig, gs, nx, ny):
     """取前 nx 列（跨 ny 行）的列槽位左右范围（figure 坐标）。"""
     fig.canvas.draw()
     # 用第一行的前 nx 列即可得到列左右边界
     bb_row0 = gs[0, :nx].get_position(fig)
     return bb_row0.x0, bb_row0.x1
+
 
 def _bbox_rows_from_axes(fig, axes):
     """取实际 Axes（不含面板标题那段负偏移文本）的上下范围（figure 坐标）。"""
