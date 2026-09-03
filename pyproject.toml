@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm>=6.2"]
+requires = ["setuptools>=77", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,28 +7,50 @@ name = "boviz"
 dynamic = ["version"]
 description = "An advanced and flexible scientific plotting toolkit."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = { text = "GNU General Public License v3 (GPLv3)" }
 authors = [
   { name="Bo Qian", email="bqian@shu.edu.cn" }
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
   "matplotlib>=3.0",
   "numpy>=1.18",
   "pandas>=1.0",
-  "pytest>=6.0",
-  "pathlib>=1.0",
-  "argparse>=1.4.0",
   "meshio>=4.0",
   "netCDF4>=1.5"
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=7"]
+docs = ["sphinx>=7", "sphinx_rtd_theme>=2", "myst_parser>=2"]
+dev = ["pytest>=7", "build>=1", "twine>=5"]
+
 [project.urls]
 Homepage = "https://github.com/bo-qian/boviz"
 Repository = "https://github.com/bo-qian/boviz"
+Documentation = "https://boviz.readthedocs.io/zh-cn/latest/"
+Issues = "https://github.com/bo-qian/boviz/issues"
+Changelog = "https://github.com/bo-qian/boviz/blob/main/CHANGELOG.md"
 
 [project.scripts]
 boviz = "boviz.cli:main"
 
 [tool.setuptools_scm]
 write_to = "src/boviz/_version.py"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

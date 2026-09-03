@@ -3,6 +3,8 @@
 </p>
 
 [![PyPI version](https://img.shields.io/pypi/v/boviz.svg)](https://pypi.org/project/boviz/)
+[![Tests](https://github.com/bo-qian/boviz/actions/workflows/tests.yml/badge.svg)](https://github.com/bo-qian/boviz/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://pypi.org/project/boviz/)
 [![Documentation Status](https://readthedocs.org/projects/boviz/badge/?version=latest)](https://boviz.readthedocs.io/zh-cn/latest/?badge=latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -28,6 +30,8 @@
 ---
 
 ## 📦 Installation
+
+Requires Python 3.10 or newer. Earlier metadata incorrectly advertised older Python versions despite the source using Python 3.10 syntax.
 
 ```bash
 pip install boviz
@@ -78,6 +82,7 @@ After initialization, you can immediately start adding your data and scripts, an
 
 ```python
 from boviz import *
+import numpy as np
 
 # Plot initial particle distribution schematic
 plot_initial_particle_schematic(
@@ -158,17 +163,48 @@ plot_heatmap_particle(
 To run all tests, use:
 
 ```bash
+python -m pip install -e ".[test]"
 python -m pytest
 ```
 
 > **Note:** On Windows, if you installed boviz in a Conda environment, make sure to run this command from the Conda terminal (Anaconda Prompt or your activated Conda shell), not from the default system terminal.
 
-All core plotting functions are covered by unit tests under the `tests/` directory, including:
+The tests cover CSV curve export, particle schematic export, automatic marker
+placement, spacing and grouping, dual-axis styles, and legacy parameter order.
+This is targeted regression coverage, not exhaustive coverage of all plotting APIs.
+Tests run headlessly and write figures to temporary directories. Local pytest uses
+the source tree; CI tests the installed package on Linux and Windows with Python
+3.10–3.13, and builds the distribution and documentation.
 
-- Curve plotting (single and multi-feature)
-- Schematic particle distribution
-- Residual comparison
-- Style and legend configurations
+### Marker controls
+
+```python
+import numpy as np
+from boviz import plot_curves
+
+x = np.linspace(0, 10, 501)
+plot_curves(
+    data=[(x, np.sin(x)), (x, np.sin(x))],
+    label=["Experiment", "Simulation"],
+    xy_label=("Time", "Response"),
+    use_marker=[True, True],
+    marker_spacing="auto",
+    marker_group=[0, 1],
+    save=True,
+)
+```
+
+- `marker_spacing="auto"` uses phased marker placement with a nominal period of
+  0.12 of the axes diagonal; a positive number changes that fraction.
+- `marker_spacing=None` marks every data point. A two-number tuple specifies
+  `(offset_step, period)` for Matplotlib's distance-based `markevery` mode.
+- `marker_group` selects marker shapes independently of `color_group`.
+- `plot_dual_curves_csv` also supports `marker_group_right`, `line_style`, and
+  `line_style_right`.
+
+Automatic placement uses a linear data-to-display approximation and selects
+existing samples; it does not guarantee uniform spacing on logarithmic axes or
+very sparsely sampled curves. See [release notes](CHANGELOG.md).
 
 ---
 
@@ -179,7 +215,6 @@ boviz/
 ├── src/
 │   └── boviz/
 │       ├── __init__.py
-│       ├── __main__.py          # Main entry point for the package
 │       ├── cli.py               # Command-line interface for plotting
 │       ├── config.py            # Global parameters and color sets
 │       ├── curves.py            # Core curve plotting functions
@@ -190,7 +225,7 @@ boviz/
 ├── tests/                       # Pytest-based test cases
 ├── example/                     # Example scripts and CSV data
 │   ├── data/
-│   └── test_example_plot.py
+│   └── example_plot.py
 ├── figures/                     # Output figures (auto-generated)
 │   └── ShowExample/             # Example figures for documentation
 ├── requirements.txt             # Required dependencies
@@ -209,9 +244,6 @@ boviz/
 matplotlib>=3.0
 numpy>=1.18
 pandas>=1.0
-pytest>=6.0
-pathlib>=1.0
-argparse>=1.4.0
 meshio>=4.0
 netCDF4>=1.5
 ```
@@ -233,6 +265,8 @@ Feel free to contribute by:
 - Submitting pull requests with enhancements or new plotting modules
 
 All contributions are welcome and appreciated.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, and release checks.
 
 ---
 

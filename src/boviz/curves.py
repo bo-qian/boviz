@@ -484,7 +484,6 @@ def plot_curves_csv(
     use_marker: list[bool] = None,
     use_scatter: list[bool] = None,
     line_style: list[str] = None,
-    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     legend_location: str = None,
@@ -502,13 +501,14 @@ def plot_curves_csv(
     ylog: bool | float = False,
     sci: tuple[float, float] = [None, None],
     color_group: list[int] = None,
-    marker_group: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
     show_grid: bool = False,
+    marker_spacing: str | float | list = "auto",
+    marker_group: list[int] = None,
 ) -> str:
     """
     从 CSV 文件读取数据并绘制科学曲线。支持多曲线对比、样式定制及残差分析。
@@ -529,6 +529,9 @@ def plot_curves_csv(
         use_marker (list[bool], optional): 是否为每条曲线启用标记点样式。默认为 False。
         use_scatter (list[bool], optional): 是否以散点图形式绘制。默认为 False。
         line_style (list[str], optional): 指定每条曲线的线型（如 '-', '--'）。默认为 '-'。
+        marker_spacing (str | float | list, optional): 标记间距，默认 "auto"；
+            正数表示坐标轴对角线比例，None 标记全部点。两个数字的元组
+            表示 (offset_step, period)，传递给 Matplotlib markevery。
         tick_interval_x (float, optional): 强制 X 轴主刻度间隔。
         tick_interval_y (float, optional): 强制 Y 轴主刻度间隔。
         legend_location (str, optional): 图例位置，如 'upper right', 'best'。
@@ -665,7 +668,6 @@ def plot_curves(
     use_marker: list[bool] = None,
     use_scatter: list[bool] = None,
     line_style: list[str] = None,
-    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     legend_location: str = None,
@@ -683,13 +685,14 @@ def plot_curves(
     ylog: bool | float = False,
     sci: tuple[float, float] = (None, None),
     color_group: list[int] = None,
-    marker_group: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
     show_grid: bool = False,
+    marker_spacing: str | float | list = "auto",
+    marker_group: list[int] = None,
 ) -> str:
     """
     直接绘制内存中的数据（NumPy 数组）。参数含义同 plot_curves_csv。
@@ -819,9 +822,6 @@ def plot_dual_curves_csv(
     use_marker_right: list[bool] = None,
     use_scatter: list[bool] = None,
     use_scatter_right: list[bool] = None,
-    line_style: list[str] = None,
-    line_style_right: list[str] = None,
-    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     tick_interval_y_right: float = None,
@@ -844,17 +844,24 @@ def plot_dual_curves_csv(
 
     color_group: list[int] = None,
     color_group_right: list[int] = None,
-    marker_group: list[int] = None,
-    marker_group_right: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
     font_weight: str = "bold",
     figure_format: str = 'png',
     show_grid: bool = False,
+    line_style: list[str] = None,
+    line_style_right: list[str] = None,
+    marker_spacing: str | float | list = "auto",
+    marker_group: list[int] = None,
+    marker_group_right: list[int] = None,
 ) -> str:
     """
     双轴绘图（风格统一版）：线宽为1，实线，完美复刻 plot_curves_csv 风格。
+
+    marker_spacing 控制左右曲线的标记错位；marker_group 和
+    marker_group_right 独立于颜色选择形状。line_style 和 line_style_right
+    分别设置左右曲线线型（有无标记均适用）。自动间距基于线性坐标近似。
     """
     # ... (字体设置保持不变) ...
     if not font_style:
@@ -934,6 +941,7 @@ def plot_dual_curves_csv(
         else:
             # 【修改】显式指定 linewidth=1
             ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
+                         linestyle=line_style[i],
                          color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
 
     for i, (x_d, y_d) in enumerate(curves_right):
@@ -958,6 +966,7 @@ def plot_dual_curves_csv(
         else:
             # 【修改】显式指定 linewidth=1，去除 linestyle='--'
             ax_right.plot(x_d, y_d, label=label_right[i], linewidth=1,
+                          linestyle=line_style_right[i],
                           color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
 
     # =========================================================================

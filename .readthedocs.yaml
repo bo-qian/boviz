@@ -11,8 +11,7 @@ python:
     - method: pip
       path: .
       extra_requirements:
-        - docs  # 如果你在 setup.py 里没定义 extras_require，这里可以去掉，或者直接由下一行安装依赖
-    - requirements: docs/requirements.txt # 如果你有专门的文档依赖文件
+        - docs
 
 sphinx:
   configuration: docs/source/conf.py

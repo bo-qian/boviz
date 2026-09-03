@@ -1,6 +1,8 @@
 # boviz 中文文档
 
 [![PyPI version](https://img.shields.io/pypi/v/boviz.svg)](https://pypi.org/project/boviz/)
+[![Tests](https://github.com/bo-qian/boviz/actions/workflows/tests.yml/badge.svg)](https://github.com/bo-qian/boviz/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)](https://pypi.org/project/boviz/)
 [![Documentation Status](https://readthedocs.org/projects/boviz/badge/?version=latest)](https://boviz.readthedocs.io/zh-cn/latest/?badge=latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -24,6 +26,8 @@
 ---
 
 ## 📦 安装指南
+
+需要 Python 3.10 或更高版本。旧版安装元数据声称支持更早版本，但源码已使用 Python 3.10 语法，本版纠正该声明。
 
 ```bash
 pip install boviz
@@ -151,16 +155,42 @@ plot_heatmap_particle(
 运行全部测试：
 
 ```bash
+python -m pip install -e ".[test]"
 python -m pytest
 ```
 
 > **注意：** Windows 用户如在 Conda 环境下安装，请在 Conda 终端（Anaconda Prompt 或已激活的 Conda shell）中运行上述命令。
 
-所有核心绘图函数均有 `tests/` 目录下的单元测试覆盖，包括：
-- 曲线绘制（单曲线与多特征）
-- 粒子分布示意图
-- 残差对比
-- 样式与图例配置
+当前回归测试覆盖 CSV 曲线导出、粒子示意图导出、自动 marker 错位、
+间距与分组、双轴线型以及旧参数位置兼容性，尚未覆盖全部绘图 API。
+测试使用无窗口后端，并将输出写入临时目录。本地测试读取仓库源码，
+CI 在 Linux/Windows、Python 3.10–3.13 上验证安装后的包，并构建发布包与文档。
+
+### Marker 控制
+
+```python
+import numpy as np
+from boviz import plot_curves
+
+x = np.linspace(0, 10, 501)
+plot_curves(
+    data=[(x, np.sin(x)), (x, np.sin(x))],
+    label=["Experiment", "Simulation"],
+    xy_label=("Time", "Response"),
+    use_marker=[True, True],
+    marker_spacing="auto",
+    marker_group=[0, 1],
+    save=True,
+)
+```
+
+- `marker_spacing="auto"` 自动错开标记，名义间隔为坐标轴对角线的 0.12 倍；正数可调整该比例。
+- `None` 在每个数据点绘制标记；两个数字的元组表示 `(offset_step, period)`，采用 Matplotlib 的距离模式。
+- `marker_group` 独立于 `color_group` 控制标记形状。
+- 双轴接口还支持 `marker_group_right`、`line_style`、`line_style_right`。
+
+自动定位使用线性坐标映射近似，并选择已有采样点；对数坐标或稀疏曲线不保证严格等距。
+详见 [更新日志](CHANGELOG.md) 和 [贡献指南](CONTRIBUTING.md)。
 
 ---
 
@@ -171,7 +201,6 @@ boviz/
 ├── src/
 │   └── boviz/
 │       ├── __init__.py
-│       ├── __main__.py          # 包主入口
 │       ├── cli.py               # 命令行绘图接口
 │       ├── config.py            # 全局参数与配色
 │       ├── curves.py            # 核心曲线绘图函数
@@ -182,7 +211,7 @@ boviz/
 ├── tests/                       # 基于 Pytest 的测试用例
 ├── example/                     # 示例脚本与 CSV 数据
 │   ├── data/
-│   └── test_example_plot.py
+│   └── example_plot.py
 ├── figures/                     # 输出图片（自动生成）
 │   └── ShowExample/             # 文档示例图片
 ├── requirements.txt             # 依赖包列表
@@ -201,9 +230,6 @@ boviz/
 matplotlib>=3.0
 numpy>=1.18
 pandas>=1.0
-pytest>=6.0
-pathlib>=1.0
-argparse>=1.4.0
 meshio>=4.0
 netCDF4>=1.5
 ```

@@ -8,7 +8,7 @@ except ImportError:
     
 import sphinx_rtd_theme 
 
-sys.path.insert(0, os.path.abspath('../../src'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
 
 # =============================================================
 #  🛑 之前缺失的关键部分 (Project Information)
