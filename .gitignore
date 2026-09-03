@@ -163,6 +163,7 @@ cython_debug/
 # boviz project specific ignores
 figures/
 !figures/.gitkeep  # Keep the directory but ignore its contents
+src/boviz/_version.py
 
 # Data files (if not needed in version control)
 tests/data/

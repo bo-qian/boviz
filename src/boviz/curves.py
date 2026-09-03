@@ -15,7 +15,204 @@ from boviz.utils import generate_plot_filename, load_data_csv, save_figure
 # -----------------------------------------------------------------------------
 
 
-def update_curve_plotting_with_styles(ax, x_data, y_data, label, index, custom_linestyle=None):
+def _resolve_marker_frame(curves, xlim=None, ylim=None, ax=None):
+    """Return the shared data/display frame used to phase markers."""
+    x_chunks = []
+    y_chunks = []
+    for x_data, y_data in curves:
+        x_arr = np.asarray(x_data, dtype=float)
+        y_arr = np.asarray(y_data, dtype=float)
+        finite = np.isfinite(x_arr) & np.isfinite(y_arr)
+        if np.any(finite):
+            x_chunks.append(x_arr[finite])
+            y_chunks.append(y_arr[finite])
+
+    if not x_chunks:
+        return None
+
+    all_x = np.concatenate(x_chunks)
+    all_y = np.concatenate(y_chunks)
+
+    def resolve_range(values, lim):
+        data_min = float(np.min(values))
+        data_max = float(np.max(values))
+        if lim:
+            v0 = data_min if lim[0] is None else float(lim[0])
+            v1 = data_max if lim[1] is None else float(lim[1])
+        else:
+            pad = 0.05 * (data_max - data_min)
+            v0, v1 = data_min - pad, data_max + pad
+        if not np.isfinite(v0) or not np.isfinite(v1):
+            return None
+        if v1 <= v0:
+            pad = 0.5 if v0 == 0 else abs(v0) * 0.05
+            v0, v1 = v0 - pad, v1 + pad
+        return v0, v1
+
+    x_range = resolve_range(all_x, xlim)
+    y_range = resolve_range(all_y, ylim)
+    if x_range is None or y_range is None:
+        return None
+
+    width, height = 1.0, 1.0
+    if ax is not None:
+        try:
+            ax.figure.canvas.draw()
+            bbox = ax.get_window_extent()
+            width = float(bbox.width) if bbox.width > 0 else 1.0
+            height = float(bbox.height) if bbox.height > 0 else 1.0
+        except Exception:
+            pass
+
+    return (*x_range, *y_range, width, height)
+
+
+def _auto_marker_markevery(
+    x_data,
+    y_data,
+    curve_index,
+    total_curves=None,
+    marker_spacing="auto",
+    marker_frame=None,
+):
+    """
+    Return a markevery setting for multi-curve plots.
+
+    The default mode is display-distance phased: for N comparable curves,
+    markers appear at equal visual intervals, with the N curves offset by
+    period / N. Numeric marker_spacing values set the marker period as a
+    fraction of the axes diagonal; the default "auto" is 0.12.
+    """
+    if isinstance(marker_spacing, (list, tuple)):
+        if len(marker_spacing) == 0:
+            return None
+        if len(marker_spacing) == 2 and all(isinstance(v, (int, float)) for v in marker_spacing):
+            offset_step, marker_step = marker_spacing
+            return (curve_index * float(offset_step), float(marker_step))
+        value = marker_spacing[curve_index % len(marker_spacing)]
+        return value
+
+    if marker_spacing is None:
+        return None
+
+    if marker_spacing == "auto" or isinstance(marker_spacing, (int, float)):
+        if marker_frame is None:
+            marker_frame = _resolve_marker_frame([(x_data, y_data)])
+        if marker_frame is None:
+            return None
+
+        x_arr = np.asarray(x_data, dtype=float)
+        y_arr = np.asarray(y_data, dtype=float)
+        x0, x1, y0, y1, width, height = marker_frame
+        finite = (
+            np.isfinite(x_arr)
+            & np.isfinite(y_arr)
+            & (x_arr >= x0)
+            & (x_arr <= x1)
+        )
+        if not np.any(finite):
+            return None
+
+        x_span = x1 - x0
+        y_span = y1 - y0
+        if x_span <= 0 or y_span <= 0:
+            return None
+
+        n = max(1, int(total_curves or 1))
+        valid_positions = np.where(finite)[0]
+        x_display = (x_arr[valid_positions] - x0) / x_span * width
+        y_display = (y_arr[valid_positions] - y0) / y_span * height
+        if len(valid_positions) <= 1:
+            return valid_positions.tolist()
+
+        diag = float(np.hypot(width, height))
+        spacing_fraction = 0.12 if marker_spacing == "auto" else float(marker_spacing)
+        period = spacing_fraction * diag
+        if period <= 0:
+            return valid_positions[:1].tolist()
+
+        offset = (int(curve_index) % n) * period / n
+
+        indices = []
+        used = set()
+        marker_xy = []
+        min_same_curve_gap = 0.35 * period
+
+        for j in range(len(valid_positions) - 1):
+            x0d, y0d = x_display[j], y_display[j]
+            x1d, y1d = x_display[j + 1], y_display[j + 1]
+            dx = x1d - x0d
+            dy = y1d - y0d
+            seg_len = float(np.hypot(dx, dy))
+            if seg_len <= 1e-9:
+                continue
+
+            ux = dx / seg_len
+            uy = dy / seg_len
+            # Orient each local segment consistently in screen space. This makes
+            # identical overlapping horizontal, vertical, or slanted segments use
+            # the same global phase even if their earlier curve histories differ.
+            if abs(ux) >= abs(uy):
+                if ux < 0:
+                    ux, uy = -ux, -uy
+            elif uy < 0:
+                ux, uy = -ux, -uy
+
+            q0 = x0d * ux + y0d * uy
+            q1 = x1d * ux + y1d * uy
+            q_min, q_max = sorted((q0, q1))
+            if q_max - q_min <= 1e-9:
+                continue
+
+            k_start = int(np.ceil((q_min - offset) / period))
+            k_end = int(np.floor((q_max - offset) / period))
+            for k in range(k_start, k_end + 1):
+                target = offset + k * period
+                frac = (target - q0) / (q1 - q0)
+                if frac < -1e-6 or frac > 1.0 + 1e-6:
+                    continue
+                frac = min(1.0, max(0.0, frac))
+                candidate_pos = np.array([x0d + frac * dx, y0d + frac * dy])
+                nearest_local = j if frac < 0.5 else j + 1
+                nearest = int(valid_positions[nearest_local])
+                if nearest in used:
+                    continue
+                if marker_xy and min(np.hypot(*(candidate_pos - pos)) for pos in marker_xy) < min_same_curve_gap:
+                    continue
+                indices.append(nearest)
+                used.add(nearest)
+                marker_xy.append(candidate_pos)
+
+        if not indices:
+            total_lengths = np.hypot(np.diff(x_display), np.diff(y_display))
+            cumulative = np.concatenate(([0.0], np.cumsum(total_lengths)))
+            total_length = float(cumulative[-1])
+            if total_length <= 0:
+                return valid_positions[:1].tolist()
+            targets = np.arange(offset, total_length + 0.5 * period, period)
+            for target in targets:
+                nearest = int(valid_positions[np.argmin(np.abs(cumulative - target))])
+                if nearest not in used:
+                    indices.append(nearest)
+                    used.add(nearest)
+
+        return sorted(indices)
+    return marker_spacing
+
+
+def update_curve_plotting_with_styles(
+    ax,
+    x_data,
+    y_data,
+    label,
+    index,
+    custom_linestyle=None,
+    total_curves=None,
+    curve_index=None,
+    marker_index=None,
+    marker_spacing="auto",
+    marker_frame=None,
+):
     """
     内部函数：使用循环的线型和标记样式绘制曲线。
     用于 use_marker=True 的情况。
@@ -23,6 +220,9 @@ def update_curve_plotting_with_styles(ax, x_data, y_data, label, index, custom_l
     line_styles = ['-', '--', '-.', ':']
     markers = ['o', 's', '^', 'v', 'D', '*']
     color = GLOBAL_COLORS[index % len(GLOBAL_COLORS)]
+    marker_style_index = marker_index
+    if marker_style_index is None:
+        marker_style_index = index if curve_index is None else curve_index
 
     # 强对比叠加重合曲线的最佳实践：实心空心交叉，不使用纯线条
     ls = custom_linestyle if custom_linestyle else line_styles[index % len(line_styles)]
@@ -30,8 +230,15 @@ def update_curve_plotting_with_styles(ax, x_data, y_data, label, index, custom_l
     ax.plot(x_data, y_data,
             label=label,
             linestyle=ls,
-            marker=markers[index % len(markers)],
-            markevery=slice(index * 2, None, max(1, len(x_data) // 15)),
+            marker=markers[marker_style_index % len(markers)],
+            markevery=_auto_marker_markevery(
+                x_data,
+                y_data,
+                index if curve_index is None else curve_index,
+                total_curves,
+                marker_spacing,
+                marker_frame,
+            ),
             markersize=3.5,
             markerfacecolor='none',
             linewidth=1,
@@ -277,6 +484,7 @@ def plot_curves_csv(
     use_marker: list[bool] = None,
     use_scatter: list[bool] = None,
     line_style: list[str] = None,
+    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     legend_location: str = None,
@@ -294,6 +502,7 @@ def plot_curves_csv(
     ylog: bool | float = False,
     sci: tuple[float, float] = [None, None],
     color_group: list[int] = None,
+    marker_group: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
@@ -335,6 +544,7 @@ def plot_curves_csv(
         ylog (bool, optional): Y 轴是否使用对数坐标。
         sci (tuple[float, float], optional): 科学计数法缩放因子 [x_scale, y_scale]。
         color_group (list[int], optional): 指定颜色分组索引，强制多条曲线使用相同颜色。
+        marker_group (list[int], optional): 指定 marker 分组索引，可让不同颜色曲线共用同一孔位 marker。
         show (bool, optional): 是否在窗口显示图像。默认为 False。
         save (bool, optional): 是否保存图像到文件。默认为 False。
         font_style (str, optional): 字体风格 ('times', 'sans' 或 None)。
@@ -399,14 +609,30 @@ def plot_curves_csv(
                 raise ValueError("CSV data missing column names. Please specify 'xy_label'.")
             xy_label = [x_colname, y_colname]
 
+    marker_frame = _resolve_marker_frame(curves, xlim, ylim, ax_main)
+
+    for i, (x_d, y_d) in enumerate(curves):
         # 颜色索引
         color_index = color_group[i] if color_group else (i if len(path) > 1 else 10)
+        marker_index = marker_group[i] if marker_group else i
 
         # 绘制
         if use_scatter[i]:
             plot_scatter_style(ax_main, x_d, y_d, label[i], color_index)
         elif use_marker[i]:
-            update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_index, line_style[i])
+            update_curve_plotting_with_styles(
+                ax_main,
+                x_d,
+                y_d,
+                label[i],
+                color_index,
+                line_style[i],
+                total_curves=len(path),
+                curve_index=i,
+                marker_index=marker_index,
+                marker_spacing=marker_spacing,
+                marker_frame=marker_frame,
+            )
         else:
             ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
                          linestyle=line_style[i],
@@ -439,6 +665,7 @@ def plot_curves(
     use_marker: list[bool] = None,
     use_scatter: list[bool] = None,
     line_style: list[str] = None,
+    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     legend_location: str = None,
@@ -456,6 +683,7 @@ def plot_curves(
     ylog: bool | float = False,
     sci: tuple[float, float] = (None, None),
     color_group: list[int] = None,
+    marker_group: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
@@ -529,14 +757,30 @@ def plot_curves(
 
         curves.append((x_data, y_data))
 
+    marker_frame = _resolve_marker_frame(curves, xlim, ylim, ax_main)
+
+    for i, (x_data, y_data) in enumerate(curves):
         # 颜色
         color_index = color_group[i] if color_group else (i if len(data) > 1 else 10)
+        marker_index = marker_group[i] if marker_group else i
 
         # 绘图
         if use_scatter[i]:
             plot_scatter_style(ax_main, x_data, y_data, label[i], color_index)
         elif use_marker[i]:
-            update_curve_plotting_with_styles(ax_main, x_data, y_data, label[i], color_index, line_style[i])
+            update_curve_plotting_with_styles(
+                ax_main,
+                x_data,
+                y_data,
+                label[i],
+                color_index,
+                line_style[i],
+                total_curves=len(data),
+                curve_index=i,
+                marker_index=marker_index,
+                marker_spacing=marker_spacing,
+                marker_frame=marker_frame,
+            )
         else:
             ax_main.plot(x_data, y_data, label=label[i], linewidth=1, linestyle=line_style[i],
                          color=GLOBAL_COLORS[color_index % len(GLOBAL_COLORS)])
@@ -575,6 +819,9 @@ def plot_dual_curves_csv(
     use_marker_right: list[bool] = None,
     use_scatter: list[bool] = None,
     use_scatter_right: list[bool] = None,
+    line_style: list[str] = None,
+    line_style_right: list[str] = None,
+    marker_spacing: str | float | list = "auto",
     tick_interval_x: float = None,
     tick_interval_y: float = None,
     tick_interval_y_right: float = None,
@@ -597,6 +844,8 @@ def plot_dual_curves_csv(
 
     color_group: list[int] = None,
     color_group_right: list[int] = None,
+    marker_group: list[int] = None,
+    marker_group_right: list[int] = None,
     show: bool = False,
     save: bool = False,
     font_style: str = None,
@@ -643,6 +892,9 @@ def plot_dual_curves_csv(
     use_marker_right = use_marker_right or [False] * len(path_right)
     use_scatter = use_scatter or [False] * len(path)
     use_scatter_right = use_scatter_right or [False] * len(path_right)
+    line_style = line_style or ['-'] * len(path)
+    line_style_right = line_style_right or ['-'] * len(path_right)
+    total_curves = len(path) + len(path_right)
 
     curves_left = []
     if not xy_label:
@@ -650,26 +902,59 @@ def plot_dual_curves_csv(
     for i in range(len(path)):
         x_d, y_d, _, _ = load_data_csv(path[i], x[i], y[i], factor[i] if factor else [(1, 0), (1, 0)], time_step[i])
         curves_left.append((x_d, y_d))
-        color_idx = color_group[i] if color_group else i
-        if use_scatter[i]:
-            plot_scatter_style(ax_main, x_d, y_d, label[i], color_idx)
-        elif use_marker[i]:
-            update_curve_plotting_with_styles(ax_main, x_d, y_d, label[i], color_idx, line_style[i])
-        else:
-            # 【修改】显式指定 linewidth=1
-            ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
-                         color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
 
     curves_right = []
     color_offset = len(path) if not color_group_right else 0
     for i in range(len(path_right)):
         x_d, y_d, _, _ = load_data_csv(path_right[i], x_right[i], y_right[i], factor_right[i] if factor_right else [(1, 0), (1, 0)], time_step_right[i])
         curves_right.append((x_d, y_d))
+
+    marker_frame_left = _resolve_marker_frame(curves_left, xlim, ylim, ax_main)
+    marker_frame_right = _resolve_marker_frame(curves_right, xlim, ylim_right, ax_right)
+
+    for i, (x_d, y_d) in enumerate(curves_left):
+        color_idx = color_group[i] if color_group else i
+        marker_idx = marker_group[i] if marker_group else i
+        if use_scatter[i]:
+            plot_scatter_style(ax_main, x_d, y_d, label[i], color_idx)
+        elif use_marker[i]:
+            update_curve_plotting_with_styles(
+                ax_main,
+                x_d,
+                y_d,
+                label[i],
+                color_idx,
+                line_style[i],
+                total_curves=total_curves,
+                curve_index=i,
+                marker_index=marker_idx,
+                marker_spacing=marker_spacing,
+                marker_frame=marker_frame_left,
+            )
+        else:
+            # 【修改】显式指定 linewidth=1
+            ax_main.plot(x_d, y_d, label=label[i], linewidth=1,
+                         color=GLOBAL_COLORS[color_idx % len(GLOBAL_COLORS)])
+
+    for i, (x_d, y_d) in enumerate(curves_right):
         color_idx = color_group_right[i] if color_group_right else (i + color_offset)
+        marker_idx = marker_group_right[i] if marker_group_right else (len(path) + i)
         if use_scatter_right[i]:
             plot_scatter_style(ax_right, x_d, y_d, label_right[i], color_idx)
         elif use_marker_right[i]:
-            update_curve_plotting_with_styles(ax_right, x_d, y_d, label_right[i], color_idx, line_style_right[i])
+            update_curve_plotting_with_styles(
+                ax_right,
+                x_d,
+                y_d,
+                label_right[i],
+                color_idx,
+                line_style_right[i],
+                total_curves=total_curves,
+                curve_index=len(path) + i,
+                marker_index=marker_idx,
+                marker_spacing=marker_spacing,
+                marker_frame=marker_frame_right,
+            )
         else:
             # 【修改】显式指定 linewidth=1，去除 linestyle='--'
             ax_right.plot(x_d, y_d, label=label_right[i], linewidth=1,
